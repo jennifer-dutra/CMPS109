@@ -55,9 +55,11 @@ int main(int argc, char *argv[]) {
   char *rpn = argv[1];            // pointer to RPN argument
   stackT stack;                   // declare stack
   StackInit(&stack, strlen(rpn)); // create stack, allocate space
-  int sum = 0;                    // sum
+  int sum = 0;                    // current sum to push to stack
+  int result = 0;                 // final calculation to return
 
-  // loop through RPN argument
+  // parse string character by character until end of string is reached
+  // evaluates during loop and returns final sum (at the top of the stack)
   for(int i = 0; rpn[i] != '\0'; i++) {
     int currNum = 0; // current number
 
@@ -66,13 +68,10 @@ int main(int argc, char *argv[]) {
       // convert char to int and add digit to current number
       // must shift the current number by power of 10 (ex. '55' = '5' + '5' = 50 + 5)
       currNum = (currNum * 10) + (rpn[i] - '0');
-      // printf("Digit is: %d, ", currNum); // TESTING
 
       // if the next digit is not a part of the same number, push number to the stack
       if(!isdigit(rpn[i + 1])) {
-        // printf("push %d to stack, ", currNum);
         StackPush(&stack, currNum);
-        // printf("pushed: %d, ", currNum); // TESTING
       }
       i++;  // iterate to the next character in the string
     }
@@ -81,17 +80,17 @@ int main(int argc, char *argv[]) {
     if(rpn[i] == '+' || rpn[i] == '-' || rpn[i] == '*' || rpn[i] == '/' || rpn[i] == '^') {
       int num1 = StackPop(&stack);        // pop first number from stack
       int num2 = StackPop(&stack);        // pop second number from stack
-      // printf("Popped: %d, ", num1);    // TESTING
-      // printf("Popped: %d, ", num2);    // TESTING
       sum = operate(num1, num2, rpn[i]);  // perform desired operation on two integers
-      // printf("push %d to stack, ", sum);
       StackPush(&stack, sum);             // update current sum by pushing to the stack
     }
-
-
   }
 
-  return sum; // return final sum for the RPN argument given
+  // final sum is at the top of stack
+  if(!StackIsEmpty(&stack)) {
+    result = StackPop(&stack);
+    printf("%d", result);
+    return 0;
+  }
 
   return -1; // return -1 if there is there is an error
 }
@@ -102,23 +101,22 @@ int main(int argc, char *argv[]) {
  * function is called to peform the correct arithmetic.
  */
 int operate(int num1, int num2, char operation) {
-
   if(operation == '+') {
-    return (num2 + num1);
+    return (num2 + num1);        // addition
   }
   else if (operation == '-') {
-    return (num2 - num1);
+    return (num2 - num1);        // subtraction
   }
   else if (operation == '*') {
-    return (num2 * num1);
+    return (num2 * num1);        // multiplication
   }
   else if (operation == '/') {
-    return (num2 / num1);
+    return (num2 / num1);        // division
   }
   else if (operation == '^') {
-    return (pow(num2, num1));
+    return (pow(num2, num1));    // power
   }
-  else { // CHANGE THIS
+  else { // CHANGE THIS??
     return 0;
   }
 }
@@ -173,7 +171,7 @@ void StackPush(stackT *stackP, stackElementT element)
 stackElementT StackPop(stackT *stackP)
 {
   if (StackIsEmpty(stackP)) {
-    fprintf(stderr, "Can't pop element from stack: stack is empty.\n"); 
+    fprintf(stderr, "Can't pop element from stack: stack is empty.\n");
     exit(1);  /* Exit, returning error code. */
   }
 
