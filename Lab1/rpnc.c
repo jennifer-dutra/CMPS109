@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  /* final sum is at the top of stack */
+  /* Final sum is at the top of stack */
   result = pop(&rpnStack);
   printf("%d", result);
   deleteStack(&rpnStack);
