@@ -15,8 +15,7 @@
 
 /*
  * Array based implementation of stack
- * Referenced:
- * https://www.cs.bu.edu/teaching/c/stack/array/
+ *
  */
 
 typedef int stackElement;
@@ -115,7 +114,7 @@ int operate(int num1, int num2, char operation) {
 
 /*
  * Stack Implementation
- * Referenced: https://www.cs.bu.edu/teaching/c/stack/array
+ *
  *
 */
 
