@@ -9,7 +9,7 @@
 
 include Makefile.libs
 
-CFLAGS = -Wall -lm
+CFLAGS = -Wall
 CC = gcc
 
 SRC=$(wildcard *.c)
