@@ -8,28 +8,24 @@ import sys
 
 def main():
 
-    input = sys.argv[1]
-    currNum = 0
-    stack = []
+    input = sys.argv[1]         # user input string
+    tokens = input.split()      # split input by whitespace
+    stack = []                  # initialize stack
 
-    for i in input:
-        print(i)
+    for i in tokens:
+        # if token is a digit, add to stack
         if i.isdigit():
-            digit = ord(i) - 48
-            # currNum = (currNum * 10) + digit
-            stack.append(digit)
-            print(stack)
-
+            stack.append(int(i))
+        # if token is an operator, pop two values off stack and perform calculation
         elif i == '+' or i == '-' or i == '*' or i == '/' or i == '^':
-            print("operator %c, " % i)
-            num1 = stack[-1]
+            num1 = stack[-1]    # get val at top of stack before pop
             stack.pop()
             num2 = stack[-1]
             stack.pop()
-            result = operation(num1, num2, i)
-            stack.append(result)
-            print(stack[-1])
+            stack.append(operation(num1, num2, i))  # push updated result
+    print(stack[-1])    # return final result 
 
+# performs calculation
 def operation(num1, num2, operator):
     if operator == '+':
         return num2 + num1
