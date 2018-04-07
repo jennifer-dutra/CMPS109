@@ -5,6 +5,8 @@
 #
 
 # echo $1
+# elif [ "$oper" == '+' ]; then
+
 
 stack=()
 top=0     # next empty spot in stack
@@ -14,7 +16,6 @@ do
   if [[ $oper =~ ^[0-9]+$ ]]; then
     # echo "push: $oper, "
     stack[$top]=$oper
-    (( top += 1 ))
   elif [ "$oper" == '+' ]; then
     # echo "plus"
     (( num1_idx = top - 2 ))
@@ -22,13 +23,28 @@ do
     (( top -= 2))
     num1=${stack[num1_idx]}
     num2=${stack[num2_idx]}
-    (( result = num1 + num2 ))
-    (( top += 1 ))
-    # echo "pop: $num1, "
-    # echo "pop: $num2, "
+    echo "pop: $num2, "
+    echo "pop: $num1, "
+    (( result = $num1 + $num2 ))
+    stack[$top]=$result
+    echo "push: $result, "
+
+  elif [ "$oper" == '-' ]; then
+    # echo "plus"
+    (( num1_idx = top - 2 ))
+    (( num2_idx = top - 1 ))
+    (( top -= 2))
+    num1=${stack[num1_idx]}
+    num2=${stack[num2_idx]}
+    echo "pop: $num2, "
+    echo "pop: $num1, "
+    (( result = $num1 - $num2 ))
+    stack[$top]=$result
+    echo "push: $result, "
 
   fi
+  (( top += 1 ))
   # echo $oper
 done
 
-echo $result
+echo ${stack[0]}
