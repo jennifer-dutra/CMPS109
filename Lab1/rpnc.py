@@ -23,7 +23,7 @@ def main():
             num2 = stack[-1]
             stack.pop()
             stack.append(operation(num1, num2, i))  # push updated result
-    print(stack[-1])    # return final result 
+    print(stack[-1])    # return final result
 
 # performs calculation
 def operation(num1, num2, operator):
