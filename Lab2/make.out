@@ -1,4 +1,0 @@
-bounds.c: In function ‘setup’:
-bounds.c:11:9: warning: unused variable ‘ununsed’ [-Wunused-variable]
-     int ununsed; // here to fail warnings test, remove it
-         ^
