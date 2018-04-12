@@ -62,6 +62,7 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
     }
     // circle touches line or is outside line
     else if(inner->radius == dist || inner->radius < dist) {
+
       // GET CENTRIOD
       float centX = ((outer->vertices)[0].y + (outer->vertices)[1].y) / 2;
       float centY = ((outer->vertices)[0].x + (outer->vertices)[3].x) / 2;
@@ -104,10 +105,52 @@ bool move(Shape *shape, Point *point) {
   }
 
   if(arena->type == POLYGON && shape->type == CIRCLE) {
+    // calculate centroid here instead
+
     Circle *inner = (Circle *)shape;
     inner->center.x = point->x;
     inner->center.y = point->y;
     return isCircleInPolygon((Polygon *)arena, (Circle *)shape);
+  }
+
+  if(arena->type == CIRCLE && shape->type == POLYGON) {
+    Polygon *inner = (Polygon *)shape;
+
+    // calc current centroid
+    // Source: https://stackoverflow.com/questions/19766485/how-to-calculate-centroid-of-polygon-in-c
+
+    float a, cx, cy, t;
+    int i1;
+
+    // Calculate area of polygon
+    a = 0.0;
+    i1 = 1;
+    for(int i = 0; i < inner->numVertices; i++) {
+      a += (inner->vertices)[i].x * (inner->vertices)[i1].y - (inner->vertices)[i1].x * (inner->vertices)[i].y;
+      i1 = (i1 + 1) % inner->numVertices;
+    }
+    a *= 0.5;
+
+    // calculate the centroid coordinates
+    cx = cy = 0.0;
+    i1 = 1;
+    for(int i = 0; i < inner->numVertices; i++) {
+      t = (inner->vertices)[i].x * (inner->vertices)[i1].y - (inner->vertices)[i1].x * (inner->vertices)[i].y;
+      cx += ((inner->vertices)[i].x + (inner->vertices)[i1].x) * t;
+      cy += ((inner->vertices)[i].y + (inner->vertices)[i1].y) * t;
+      i1 = (i1 + 1) % inner->numVertices;
+    }
+    cx = cx / (6.0 * a);
+    cy = cy / (6.0 * a);
+
+    printf("Current centroid: %f, %f", cx, cy);
+
+    // find diff between centroid point
+    // move all vertecies by this vector
+
+
+
+
   }
 
   return true;

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018 David C. Harrison. All right reserved.
  *
- * You may not use, distribute, publish, or modify this code without 
+ * You may not use, distribute, publish, or modify this code without
  * the express written permission of the copyright holder.
  */
 
@@ -14,7 +14,7 @@ typedef struct point_t {
     float x;
     float y;
     float z;
-} 
+}
 Point;
 
 enum shape_type {
@@ -36,20 +36,20 @@ typedef struct circle_t {
     TYPE;
     Point center;
     float radius;
-} 
+}
 Circle;
 
 typedef struct polygon_t {
     TYPE;
     Point *vertices;
     int numVertices;
-} 
+}
 Polygon;
 
 typedef struct reuleaux_triangle_t {
     TYPE;
     Point vertices[3];
-} 
+}
 ReuleauxTriangle;
 
 typedef struct sphere_t {
@@ -62,7 +62,7 @@ Sphere;
 typedef struct reuleaux_tetrahedron_t {
     TYPE;
     Point vertices[4];
-} 
+}
 ReuleauxTetrahedron;
 
 /*
