@@ -25,6 +25,22 @@ static bool isCircleInCircle(Circle *outer, Circle *inner) {
       return distance <= outer->radius - inner->radius;
 }
 
+static bool isPolygoninCircle(Circle *outer, Polygon *inner) {
+  for(int i = 0; i < inner->numVertices; i++) {
+    float distToVertex = sqrt (
+      pow((inner->vertices)[i].x - outer->center.x, 2) +
+      pow((inner->vertices)[i].y - outer->center.y, 2));
+
+    printf("distToVertex: %f vs radius: %f ", distToVertex, outer->radius);
+
+    if(distToVertex >= outer->radius) {
+      return false;
+    }
+  }
+  // printf("%d: , x:%f, y:%f ", 0, (inner->vertices)[0].x, (inner->vertices)[0].y);
+  return true;
+}
+
 /*
  * Sources:
  * https://www.geeksforgeeks.org/check-line-touches-intersects-circle/
@@ -106,7 +122,6 @@ bool move(Shape *shape, Point *point) {
 
   if(arena->type == POLYGON && shape->type == CIRCLE) {
     // calculate centroid here instead
-
     Circle *inner = (Circle *)shape;
     inner->center.x = point->x;
     inner->center.y = point->y;
@@ -115,6 +130,8 @@ bool move(Shape *shape, Point *point) {
 
   if(arena->type == CIRCLE && shape->type == POLYGON) {
     Polygon *inner = (Polygon *)shape;
+    Circle *outer = (Circle *)arena;
+    printf("RADIUS: %f, ", outer->radius);
 
     // calc current centroid
     // Source: https://stackoverflow.com/questions/19766485/how-to-calculate-centroid-of-polygon-in-c
@@ -143,15 +160,22 @@ bool move(Shape *shape, Point *point) {
     cx = cx / (6.0 * a);
     cy = cy / (6.0 * a);
 
-    printf("Current centroid: %f, %f", cx, cy);
+    printf(" Current centroid: %f, %f ", cx, cy);
 
-    // find diff between centroid point
+    // find diff between centroid and point
+    float xMove = point->x - cx;
+    float yMove = point->y - cy;
+
+    printf(" xMove: %f, yMove: %f ", xMove, yMove);
+
     // move all vertecies by this vector
+    for(int i = 0; i < inner->numVertices; i++) {
+      (inner->vertices)[i].x += xMove;
+      (inner->vertices)[i].y += yMove;
 
-
-
-
+      // printf("%d: , x:%f, y:%f ", i, (inner->vertices)[i].x, (inner->vertices)[i].y);  // TESTING
+    }
+    return isPolygoninCircle(outer, inner);
   }
-
   return true;
 }
