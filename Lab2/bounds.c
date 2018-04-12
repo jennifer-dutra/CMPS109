@@ -58,15 +58,24 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
 
     // circle intersects line
     if(inner->radius > dist) {
-      printf("intersect");
       return false;
     }
     // circle touches line or is outside line
     else if(inner->radius == dist || inner->radius < dist) {
-      printf("touch or outside");
-
       // GET CENTRIOD
+      float centX = ((outer->vertices)[0].y + (outer->vertices)[1].y) / 2;
+      float centY = ((outer->vertices)[0].x + (outer->vertices)[3].x) / 2;
 
+      printf("height: %f, ", centY);
+      printf("width: %f, ", centX);
+
+      // check if distance between center of circle and poly < radius
+      float distCenters = sqrt (
+        pow(centX - inner->center.x, 2) +
+        pow(centY - inner->center.y, 2));
+      float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
+      printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
+      return distCenters < halfHeight;
     }
 
     // all sides of poly have been checked
