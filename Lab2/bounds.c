@@ -56,7 +56,7 @@ Point findCentriod(Point centroid, Polygon *inner) {
   return centroid;
 }
 
-static bool polyCircleIntersect(Circle *circle, Polygon *poly, bool circleInside) {
+static bool polyCircleIntersect(Circle *circle, Polygon *poly) {
   for(int i = 0; i < poly->numVertices; i++) {
     // two vertices form a line
     Point P = (poly->vertices)[i];
@@ -83,14 +83,9 @@ static bool polyCircleIntersect(Circle *circle, Polygon *poly, bool circleInside
 
     // printf("dist: %d vs radius: %f ", dist, circle->radius);
 
-    if(circleInside && (circle->radius > dist)) {
+    if(circle->radius > dist) {
       return true;
     }
-
-    if(!circleInside && (dist > circle->radius)) {
-      return true;
-    }
-
     if(restart == true) {
       break;
     }
@@ -108,24 +103,21 @@ static bool isCircleInCircle(Circle *outer, Circle *inner) {
 
 // is a polygon inside of a circle
 static bool isPolygoninCircle(Circle *outer, Polygon *inner) {
-  if(polyCircleIntersect(outer,inner, false)) {
-    return false;
+  /* check if the distance from any vertex to the center of the circle
+  is greater than the radius of the circle */
+  for(int i = 0; i < inner->numVertices; i++) {
+    float distToVertex = sqrt (
+      pow((inner->vertices)[i].x - outer->center.x, 2) +
+      pow((inner->vertices)[i].y - outer->center.y, 2));
+
+    // printf("distToVertex: %f vs radius: %f ", distToVertex, outer->radius);
+
+    if(distToVertex > outer->radius) {
+      return false;
+    }
   }
-  else {
-    Point centroid = makePoint(0.0, 0.0, 0.0);
-    centroid = findCentriod(centroid, inner);
-
-    // printf("height: %f, ", centroid.x);
-    // printf("width: %f, ", centroid.y);
-
-    // check if distance between center of circle and poly centroid < radius
-    float distCenters = sqrt (
-      pow(centroid.x - outer->center.x, 2) +
-      pow(centroid.y - outer->center.y, 2));
-
-    // printf("distbtwn: %f vs radius: %f ", distCenters, outer->radius);
-    return distCenters < outer->radius;
-  }
+  // printf("%d: , x:%f, y:%f ", 0, (inner->vertices)[0].x, (inner->vertices)[0].y);
+  return true;
 }
 
 /*
@@ -135,7 +127,7 @@ static bool isPolygoninCircle(Circle *outer, Polygon *inner) {
  *
  */
 static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
-  if(polyCircleIntersect(inner, outer, true)) {
+  if(polyCircleIntersect(inner, outer)) {
     return false;
   }
   else {
@@ -204,5 +196,13 @@ bool move(Shape *shape, Point *point) {
     }
     return isPolygoninCircle(outer, inner);
   }
+
+  if(arena->type == POLYGON && shape->type == POLYGON) {
+    // Polygon *inner = (Polygon *)shape;
+    // Polygon *outer = (Polygon *)shape;
+
+  }
+
+
   return true;
 }
