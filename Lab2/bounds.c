@@ -18,6 +18,45 @@ void setup(Shape *a, Shape *shapes[], int numShapes) {
   arena = a;
 }
 
+// creates a Point object
+Point makePoint(float x, float y, float z) {
+    Point p;
+    p.x = x;
+    p.y = y;
+    p.z = z;
+    return p;
+}
+
+// Calculates the centroid of a polygon
+// Referenced source: https://stackoverflow.com/questions/19766485/how-to-calculate-centroid-of-polygon-in-c
+Point findCentriod(Point centroid, Polygon *inner) {
+  float a, cx, cy, t;
+  int i1;
+
+  // Calculate area of polygon
+  a = 0.0;
+  i1 = 1;
+  for(int i = 0; i < inner->numVertices; i++) {
+    a += (inner->vertices)[i].x * (inner->vertices)[i1].y - (inner->vertices)[i1].x * (inner->vertices)[i].y;
+    i1 = (i1 + 1) % inner->numVertices;
+  }
+  a *= 0.5;
+
+  // calculate the x and y coordinates of centriod
+  cx = cy = 0.0;
+  i1 = 1;
+  for(int i = 0; i < inner->numVertices; i++) {
+    t = (inner->vertices)[i].x * (inner->vertices)[i1].y - (inner->vertices)[i1].x * (inner->vertices)[i].y;
+    cx += ((inner->vertices)[i].x + (inner->vertices)[i1].x) * t;
+    cy += ((inner->vertices)[i].y + (inner->vertices)[i1].y) * t;
+    i1 = (i1 + 1) % inner->numVertices;
+  }
+  centroid.x = cx / (6.0 * a);
+  centroid.y = cy / (6.0 * a);
+  return centroid;
+}
+
+// is a circle inside a circle
 static bool isCircleInCircle(Circle *outer, Circle *inner) {
   float distance = sqrt (
       pow(outer->center.x - inner->center.x, 2) +
@@ -25,6 +64,7 @@ static bool isCircleInCircle(Circle *outer, Circle *inner) {
       return distance <= outer->radius - inner->radius;
 }
 
+// is a polygon inside of a circle
 static bool isPolygoninCircle(Circle *outer, Polygon *inner) {
   for(int i = 0; i < inner->numVertices; i++) {
     float distToVertex = sqrt (
@@ -86,7 +126,7 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
       printf("height: %f, ", centY);
       printf("width: %f, ", centX);
 
-      // check if distance between center of circle and poly < radius
+      // check if distance between center of circle and poly < dist from poly center to edge
       float distCenters = sqrt (
         pow(centX - inner->center.x, 2) +
         pow(centY - inner->center.y, 2));
@@ -103,7 +143,6 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
   }
   return true;
 }
-
 
 
 /*
@@ -133,38 +172,15 @@ bool move(Shape *shape, Point *point) {
     Circle *outer = (Circle *)arena;
     printf("RADIUS: %f, ", outer->radius);
 
-    // calc current centroid
-    // Source: https://stackoverflow.com/questions/19766485/how-to-calculate-centroid-of-polygon-in-c
+    Point centroid = makePoint(0.0, 0.0, 0.0);
 
-    float a, cx, cy, t;
-    int i1;
+    centroid = findCentriod(centroid, (Polygon *)shape);
 
-    // Calculate area of polygon
-    a = 0.0;
-    i1 = 1;
-    for(int i = 0; i < inner->numVertices; i++) {
-      a += (inner->vertices)[i].x * (inner->vertices)[i1].y - (inner->vertices)[i1].x * (inner->vertices)[i].y;
-      i1 = (i1 + 1) % inner->numVertices;
-    }
-    a *= 0.5;
-
-    // calculate the centroid coordinates
-    cx = cy = 0.0;
-    i1 = 1;
-    for(int i = 0; i < inner->numVertices; i++) {
-      t = (inner->vertices)[i].x * (inner->vertices)[i1].y - (inner->vertices)[i1].x * (inner->vertices)[i].y;
-      cx += ((inner->vertices)[i].x + (inner->vertices)[i1].x) * t;
-      cy += ((inner->vertices)[i].y + (inner->vertices)[i1].y) * t;
-      i1 = (i1 + 1) % inner->numVertices;
-    }
-    cx = cx / (6.0 * a);
-    cy = cy / (6.0 * a);
-
-    printf(" Current centroid: %f, %f ", cx, cy);
+    printf(" Current centroid: %f, %f ", centroid.x, centroid.y);
 
     // find diff between centroid and point
-    float xMove = point->x - cx;
-    float yMove = point->y - cy;
+    float xMove = point->x - centroid.x;
+    float yMove = point->y - centroid.y;
 
     printf(" xMove: %f, yMove: %f ", xMove, yMove);
 
@@ -172,8 +188,6 @@ bool move(Shape *shape, Point *point) {
     for(int i = 0; i < inner->numVertices; i++) {
       (inner->vertices)[i].x += xMove;
       (inner->vertices)[i].y += yMove;
-
-      // printf("%d: , x:%f, y:%f ", i, (inner->vertices)[i].x, (inner->vertices)[i].y);  // TESTING
     }
     return isPolygoninCircle(outer, inner);
   }
