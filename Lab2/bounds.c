@@ -56,6 +56,48 @@ Point findCentriod(Point centroid, Polygon *inner) {
   return centroid;
 }
 
+static bool polyCircleIntersect(Circle *circle, Polygon *poly, bool circleInside) {
+  for(int i = 0; i < poly->numVertices; i++) {
+    // two vertices form a line
+    Point P = (poly->vertices)[i];
+    Point Q = (poly->vertices)[i + 1];
+
+    bool restart = false;
+    if(i == poly->numVertices - 1) {
+      restart = true;
+      P = (poly->vertices)[poly->numVertices - 1];
+      Q = (poly->vertices)[0];
+    }
+
+    // equation for a line is ax + by + c = 0
+    float a = Q.y - P.y;
+    float b = P.x - Q.x;
+    float c = (a * P.x) + (b * P.y);
+
+    // center of circle
+    float x = circle->center.x;
+    float y = circle->center.y;
+
+    // check: does circle intersect side of polygon (line)
+    int dist = (abs(a * x + b * y + c)) / sqrt(a * a + b * b);
+
+    // printf("dist: %d vs radius: %f ", dist, circle->radius);
+
+    if(circleInside && (circle->radius > dist)) {
+      return true;
+    }
+
+    if(!circleInside && (dist > circle->radius)) {
+      return true;
+    }
+
+    if(restart == true) {
+      break;
+    }
+  }
+  return false;
+}
+
 // is a circle inside a circle
 static bool isCircleInCircle(Circle *outer, Circle *inner) {
   float distance = sqrt (
@@ -66,19 +108,24 @@ static bool isCircleInCircle(Circle *outer, Circle *inner) {
 
 // is a polygon inside of a circle
 static bool isPolygoninCircle(Circle *outer, Polygon *inner) {
-  for(int i = 0; i < inner->numVertices; i++) {
-    float distToVertex = sqrt (
-      pow((inner->vertices)[i].x - outer->center.x, 2) +
-      pow((inner->vertices)[i].y - outer->center.y, 2));
-
-    printf("distToVertex: %f vs radius: %f ", distToVertex, outer->radius);
-
-    if(distToVertex >= outer->radius) {
-      return false;
-    }
+  if(polyCircleIntersect(outer,inner, false)) {
+    return false;
   }
-  // printf("%d: , x:%f, y:%f ", 0, (inner->vertices)[0].x, (inner->vertices)[0].y);
-  return true;
+  else {
+    Point centroid = makePoint(0.0, 0.0, 0.0);
+    centroid = findCentriod(centroid, inner);
+
+    // printf("height: %f, ", centroid.x);
+    // printf("width: %f, ", centroid.y);
+
+    // check if distance between center of circle and poly centroid < radius
+    float distCenters = sqrt (
+      pow(centroid.x - outer->center.x, 2) +
+      pow(centroid.y - outer->center.y, 2));
+
+    // printf("distbtwn: %f vs radius: %f ", distCenters, outer->radius);
+    return distCenters < outer->radius;
+  }
 }
 
 /*
@@ -88,60 +135,26 @@ static bool isPolygoninCircle(Circle *outer, Polygon *inner) {
  *
  */
 static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
-  for(int i = 0; i < outer->numVertices; i++) {
-    // two vertices form a line
-    Point P = (outer->vertices)[i];
-    Point Q = (outer->vertices)[i + 1];
-
-    bool restart = false;
-    if(i == outer->numVertices - 1) {
-      restart = true;
-      P = (outer->vertices)[outer->numVertices - 1];
-      Q = (outer->vertices)[0];
-    }
-
-    // equation for a line is ax + by + c = 0
-    float a = Q.y - P.y;
-    float b = P.x - Q.x;
-    float c = (a * P.x) + (b * P.y);
-
-    // center of circle
-    float x = inner->center.x;
-    float y = inner->center.y;
-
-    // check: does circle intersect side of polygon (line)
-    int dist = (abs(a * x + b * y + c)) / sqrt(a * a + b * b);
-
-    // circle intersects line
-    if(inner->radius > dist) {
-      return false;
-    }
-    // circle touches line or is outside line
-    else if(inner->radius == dist || inner->radius < dist) {
-
-      // GET CENTRIOD
-      float centX = ((outer->vertices)[0].y + (outer->vertices)[1].y) / 2;
-      float centY = ((outer->vertices)[0].x + (outer->vertices)[3].x) / 2;
-
-      printf("height: %f, ", centY);
-      printf("width: %f, ", centX);
-
-      // check if distance between center of circle and poly < dist from poly center to edge
-      float distCenters = sqrt (
-        pow(centX - inner->center.x, 2) +
-        pow(centY - inner->center.y, 2));
-      float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
-      printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
-      return distCenters < halfHeight;
-    }
-
-    // all sides of poly have been checked
-    if(restart == true) {
-      break;
-    }
-    // printf("vertex [%d]: %f, %f", i, (outer->vertices)[i].x, (outer->vertices)[i].y);  // TESTING
+  if(polyCircleIntersect(inner, outer, true)) {
+    return false;
   }
-  return true;
+  else {
+    Point centroid = makePoint(0.0, 0.0, 0.0);
+    centroid = findCentriod(centroid, outer);
+
+    // printf("height: %f, ", centroid.x);
+    // printf("width: %f, ", centroid.y);
+
+    // check if distance between center of circle and poly < dist from poly center to edge
+    float distCenters = sqrt (
+      pow(centroid.x - inner->center.x, 2) +
+      pow(centroid.y - inner->center.y, 2));
+
+    float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
+    // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
+
+    return distCenters < halfHeight;
+  }
 }
 
 
@@ -170,19 +183,19 @@ bool move(Shape *shape, Point *point) {
   if(arena->type == CIRCLE && shape->type == POLYGON) {
     Polygon *inner = (Polygon *)shape;
     Circle *outer = (Circle *)arena;
-    printf("RADIUS: %f, ", outer->radius);
+    // printf("RADIUS: %f, ", outer->radius);
 
     Point centroid = makePoint(0.0, 0.0, 0.0);
 
     centroid = findCentriod(centroid, (Polygon *)shape);
 
-    printf(" Current centroid: %f, %f ", centroid.x, centroid.y);
+    // printf(" Current centroid: %f, %f ", centroid.x, centroid.y);
 
     // find diff between centroid and point
     float xMove = point->x - centroid.x;
     float yMove = point->y - centroid.y;
 
-    printf(" xMove: %f, yMove: %f ", xMove, yMove);
+    // printf(" xMove: %f, yMove: %f ", xMove, yMove);
 
     // move all vertecies by this vector
     for(int i = 0; i < inner->numVertices; i++) {
