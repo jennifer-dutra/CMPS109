@@ -56,13 +56,22 @@ Point findCentriod(Point centroid, Polygon *inner) {
   return centroid;
 }
 
+
+/*
+ * Checks if edge of polygon intersects circle
+ * Sources:
+ * https://www.geeksforgeeks.org/check-line-touches-intersects-circle/
+ * https://www.geeksforgeeks.org/program-find-line-passing-2-points/
+ *
+ */
 static bool polyCircleIntersect(Circle *circle, Polygon *poly) {
   for(int i = 0; i < poly->numVertices; i++) {
+    bool restart = false;
+
     // two vertices form a line
     Point P = (poly->vertices)[i];
     Point Q = (poly->vertices)[i + 1];
 
-    bool restart = false;
     if(i == poly->numVertices - 1) {
       restart = true;
       P = (poly->vertices)[poly->numVertices - 1];
@@ -120,12 +129,7 @@ static bool isPolygoninCircle(Circle *outer, Polygon *inner) {
   return true;
 }
 
-/*
- * Sources:
- * https://www.geeksforgeeks.org/check-line-touches-intersects-circle/
- * https://www.geeksforgeeks.org/program-find-line-passing-2-points/
- *
- */
+
 static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
   if(polyCircleIntersect(inner, outer)) {
     return false;
@@ -142,11 +146,47 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
       pow(centroid.x - inner->center.x, 2) +
       pow(centroid.y - inner->center.y, 2));
 
+
+    // NEEDS CONDITIONS FOR DIFF POLYGONS
     float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
     // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
 
     return distCenters < halfHeight;
   }
+}
+
+static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
+  /* check if any sides of outer polygon intersect any sides of inner polygon
+  (intersection of line segments ) */
+  
+  // bool restartOuter = false;
+  // bool restartInner = false;
+  // for(int i = 0; i < outer->numVertices; i++) {
+  //   for(int j = 0; j < inner->numVertices; j++) {
+  //     // two vertices form a line
+  //     Point P = (outer->vertices)[i];
+  //     Point Q = (outer->vertices)[i + 1];
+  //
+  //     Point S = (inner->vertices)[j];
+  //     Point T = (inner->vertices)[j + 1];
+  //
+  //     if(i == outer->numVertices - 1) {
+  //       restart = true;
+  //       P = (outer->vertices)[outer->numVertices - 1];
+  //       Q = (outer->vertices)[0];
+  //     }
+  //
+  //     if(j == inner->numVertices - 1) {
+  //       restart = true;
+  //       P = (inner->vertices)[inner->numVertices - 1];
+  //       Q = (inner->vertices)[0];
+  //     }
+  //
+  //
+  //   }
+  // }
+
+  return true;
 }
 
 
@@ -157,28 +197,22 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
  * ARENA parameter of setup(), FALSE otherwise.
  */
 bool move(Shape *shape, Point *point) {
-  if(arena->type == CIRCLE && shape->type == CIRCLE) {
+  if(shape->type == CIRCLE) {
     Circle *inner = (Circle *)shape;
     inner->center.x = point->x;
     inner->center.y = point->y;
-    return isCircleInCircle((Circle *)arena, (Circle *)shape);
+
+    if(arena->type == CIRCLE) {
+      return isCircleInCircle((Circle *)arena, (Circle *)shape);
+    }
+    else if(arena->type == POLYGON) {
+      return isCircleInPolygon((Polygon *)arena, (Circle *)shape);
+    }
   }
 
-  if(arena->type == POLYGON && shape->type == CIRCLE) {
-    // calculate centroid here instead
-    Circle *inner = (Circle *)shape;
-    inner->center.x = point->x;
-    inner->center.y = point->y;
-    return isCircleInPolygon((Polygon *)arena, (Circle *)shape);
-  }
-
-  if(arena->type == CIRCLE && shape->type == POLYGON) {
+  else if(shape->type == POLYGON) {
     Polygon *inner = (Polygon *)shape;
-    Circle *outer = (Circle *)arena;
-    // printf("RADIUS: %f, ", outer->radius);
-
     Point centroid = makePoint(0.0, 0.0, 0.0);
-
     centroid = findCentriod(centroid, (Polygon *)shape);
 
     // printf(" Current centroid: %f, %f ", centroid.x, centroid.y);
@@ -194,15 +228,13 @@ bool move(Shape *shape, Point *point) {
       (inner->vertices)[i].x += xMove;
       (inner->vertices)[i].y += yMove;
     }
-    return isPolygoninCircle(outer, inner);
+
+    if(arena->type == CIRCLE) {
+      return isPolygoninCircle((Circle *)arena, inner);
+    }
+    else if(arena->type == POLYGON) {
+      return isPolygoninPolygon((Polygon *)arena, inner);
+    }
   }
-
-  if(arena->type == POLYGON && shape->type == POLYGON) {
-    // Polygon *inner = (Polygon *)shape;
-    // Polygon *outer = (Polygon *)shape;
-
-  }
-
-
   return true;
 }
