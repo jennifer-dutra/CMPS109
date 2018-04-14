@@ -102,6 +102,91 @@ static bool polyCircleIntersect(Circle *circle, Polygon *poly) {
   return false;
 }
 
+bool lineSegIntersect(Polygon *outer, Polygon *inner) {
+  /* check if any sides of outer polygon intersect any sides of inner polygon
+  (intersection of line segments ) */
+  bool restartOuter = false;
+  bool restartInner = false;
+
+  for(int i = 0; i < outer->numVertices ; i++) {
+    for(int j = 0; j < inner->numVertices; j++) {
+
+      // two vertices form a line
+      Point P = (outer->vertices)[i];
+      Point Q = (outer->vertices)[i + 1];
+
+      Point S = (inner->vertices)[j];
+      Point T = (inner->vertices)[j + 1];
+
+      if(i == outer->numVertices - 1) {
+        restartOuter = true;
+        P = (outer->vertices)[outer->numVertices - 1];
+        Q = (outer->vertices)[0];
+      }
+
+      if(j == inner->numVertices - 1) {
+        restartInner = true;
+        S = (inner->vertices)[inner->numVertices - 1];
+        T = (inner->vertices)[0];
+      }
+
+      /* Find equation for inner polygon edge y  =mx + b form */
+      float A1 = (P.y - Q.y) / (P.x - Q.x);   // Pay attention to not dividing by zero
+      float A2 = (S.y - T.y) / (S.x - T.x);   // Pay attention to not dividing by zero
+      float b1 = P.y - (A1 * Q.x);
+      float b2 = S.y - (A2 * T.x);
+
+
+      // check bounds of line segments
+      // if (fmax(P.x,Q.x) < fmin(S.x,T.x)) {
+      //   printf("abcisses?? wtf");
+      //   return true; // There is no mutual abcisses
+      // }
+
+      //
+      // if (A1 == A2) {
+      //   printf("same slope");
+      //   return false; // same slope = parallel segments
+      // }
+
+      // get point of X intersection
+
+      float Xa = (b2 - b1) / (A1 - A2);     // pay attention to not dividing by 0
+
+      // find point of Y intersection
+      float Ya1 = A1 * Xa + b1;
+      float Ya2 = A2 * Xa + b2;
+
+      // doesn't satisfy both formulas
+      // ALSO CHECK : is box outside or inside
+      if(Ya1 != Ya2) {
+        printf("doesnt satisfy formulas");
+        return true;
+      }
+
+
+      // make sure the x intersection is within bounds
+      if ( (Xa < fmax( fmin(P.x,Q.x), fmin(S.x,T.x) )) || (Xa > fmin( fmax(P.x,Q.x), fmax(S.x,T.x) )) ) {
+        printf("not in bounds");
+        return true; // intersection is out of bound
+      }
+      else {
+        return false;
+      }
+
+      // all sides of one poly or both have been checked
+      if(restartInner == true || restartOuter == true)
+        printf("checked all sides no intersect");
+        return true;
+    }
+  }
+  return false;
+}
+
+
+
+
+
 // is a circle inside a circle
 static bool isCircleInCircle(Circle *outer, Circle *inner) {
   float distance = sqrt (
@@ -146,7 +231,6 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
       pow(centroid.x - inner->center.x, 2) +
       pow(centroid.y - inner->center.y, 2));
 
-
     // NEEDS CONDITIONS FOR DIFF POLYGONS
     float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
     // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
@@ -155,36 +239,11 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
   }
 }
 
+
+/* Check intersection of line segments
+ * Source: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+ */
 static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
-  /* check if any sides of outer polygon intersect any sides of inner polygon
-  (intersection of line segments ) */
-  
-  // bool restartOuter = false;
-  // bool restartInner = false;
-  // for(int i = 0; i < outer->numVertices; i++) {
-  //   for(int j = 0; j < inner->numVertices; j++) {
-  //     // two vertices form a line
-  //     Point P = (outer->vertices)[i];
-  //     Point Q = (outer->vertices)[i + 1];
-  //
-  //     Point S = (inner->vertices)[j];
-  //     Point T = (inner->vertices)[j + 1];
-  //
-  //     if(i == outer->numVertices - 1) {
-  //       restart = true;
-  //       P = (outer->vertices)[outer->numVertices - 1];
-  //       Q = (outer->vertices)[0];
-  //     }
-  //
-  //     if(j == inner->numVertices - 1) {
-  //       restart = true;
-  //       P = (inner->vertices)[inner->numVertices - 1];
-  //       Q = (inner->vertices)[0];
-  //     }
-  //
-  //
-  //   }
-  // }
 
   return true;
 }
