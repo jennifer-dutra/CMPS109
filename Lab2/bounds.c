@@ -105,7 +105,7 @@ static bool polyCircleIntersect(Circle *circle, Polygon *poly) {
 bool lineSegIntersect(Polygon *outer, Polygon *inner) {
   /* check if any sides of outer polygon intersect any sides of inner polygon
   (intersection of line segments ) */
-  bool restartOuter = false;
+  // bool restartOuter = false;
   bool restartInner = false;
 
   for(int i = 0; i < outer->numVertices ; i++) {
@@ -119,7 +119,7 @@ bool lineSegIntersect(Polygon *outer, Polygon *inner) {
       Point T = (inner->vertices)[j + 1];
 
       if(i == outer->numVertices - 1) {
-        restartOuter = true;
+        // restartOuter = true;
         P = (outer->vertices)[outer->numVertices - 1];
         Q = (outer->vertices)[0];
       }
@@ -130,17 +130,42 @@ bool lineSegIntersect(Polygon *outer, Polygon *inner) {
         T = (inner->vertices)[0];
       }
 
+      float A1;
+      float A2;
+      float b1;
+      float b2;
+
+      if(P.x - Q.x == 0) {
+        A1 = 0;
+      }
+      else {
+        A1 = (P.y - Q.y) / (P.x - Q.x);   // Pay attention to not dividing by zero
+      }
+
+      if (S.x - T.x == 0) {
+        A2 = 0;
+      }
+      else {
+        A2 = (S.y - T.y) / (S.x - T.x);   // Pay attention to not dividing by zero
+      }
+
+      if(A1 == A2) {
+        continue;
+      }
+
+      printf("not same slope");
+
       /* Find equation for inner polygon edge y  =mx + b form */
-      float A1 = (P.y - Q.y) / (P.x - Q.x);   // Pay attention to not dividing by zero
-      float A2 = (S.y - T.y) / (S.x - T.x);   // Pay attention to not dividing by zero
-      float b1 = P.y - (A1 * Q.x);
-      float b2 = S.y - (A2 * T.x);
 
 
-      // check bounds of line segments
+      b1 = P.y - (A1 * Q.x);
+      b2 = S.y - (A2 * T.x);
+
+
+      // check if interval exists
       // if (fmax(P.x,Q.x) < fmin(S.x,T.x)) {
-      //   printf("abcisses?? wtf");
-      //   return true; // There is no mutual abcisses
+      //   printf("interval does not exist");
+      //   return false; // There is no mutual abcisses
       // }
 
       //
@@ -151,33 +176,52 @@ bool lineSegIntersect(Polygon *outer, Polygon *inner) {
 
       // get point of X intersection
 
+      // if intersection is same line
+
+      // printf("a1: %f, a2:  %f", A1, A2);
+
+
       float Xa = (b2 - b1) / (A1 - A2);     // pay attention to not dividing by 0
+
 
       // find point of Y intersection
       float Ya1 = A1 * Xa + b1;
       float Ya2 = A2 * Xa + b2;
 
+      printf("Xa: %f, Ya1: %f \n", Xa, Ya1);
+      printf("Xa: %f, Ya2: %f \n", Xa, Ya2);
+
       // doesn't satisfy both formulas
       // ALSO CHECK : is box outside or inside
       if(Ya1 != Ya2) {
-        printf("doesnt satisfy formulas");
-        return true;
+        // printf("Ya");
+        printf("doesnt' equal");
+        continue;
+      }
+
+      float Ya = Ya1;
+
+
+      if((S.x == Xa && S.y == Ya) || (T.x == Xa && T.y == Ya)) {
+        printf("point of intersection is a vertex");
+        continue;
       }
 
 
       // make sure the x intersection is within bounds
       if ( (Xa < fmax( fmin(P.x,Q.x), fmin(S.x,T.x) )) || (Xa > fmin( fmax(P.x,Q.x), fmax(S.x,T.x) )) ) {
         printf("not in bounds");
-        return true; // intersection is out of bound
+        continue; // intersection is out of bound
       }
       else {
-        return false;
+        printf("intersection in bounds");
+        return true;
       }
 
       // all sides of one poly or both have been checked
-      if(restartInner == true || restartOuter == true)
+      if(restartInner == true)
         printf("checked all sides no intersect");
-        return true;
+        break;
     }
   }
   return false;
@@ -245,7 +289,8 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
  */
 static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
 
-  return true;
+  // check if centroid of inner polygon is within outer polygon
+  return !lineSegIntersect(outer, inner);
 }
 
 
