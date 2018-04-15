@@ -102,133 +102,66 @@ static bool polyCircleIntersect(Circle *circle, Polygon *poly) {
   return false;
 }
 
-bool lineSegIntersect(Polygon *outer, Polygon *inner) {
-  /* check if any sides of outer polygon intersect any sides of inner polygon
-  (intersection of line segments ) */
-  // bool restartOuter = false;
-  bool restartInner = false;
+/* Source for onSegment, orientation, & doIntersect:
+ * https://www.geeksforgeeks.org/orientation-3-ordered-points/
+ *
+ */
 
-  for(int i = 0; i < outer->numVertices ; i++) {
-    for(int j = 0; j < inner->numVertices; j++) {
+// Given three colinear points p, q, r, the function checks if
+// point q lies on line segment 'pr'
+bool onSegment(Point p, Point q, Point r) {
+    if (q.x <= fmax(p.x, r.x) && q.x >= fmin(p.x, r.x) &&
+        q.y <= fmax(p.y, r.y) && q.y >= fmin(p.y, r.y))
+       return true;
 
-      // two vertices form a line
-      Point P = (outer->vertices)[i];
-      Point Q = (outer->vertices)[i + 1];
-
-      Point S = (inner->vertices)[j];
-      Point T = (inner->vertices)[j + 1];
-
-      if(i == outer->numVertices - 1) {
-        // restartOuter = true;
-        P = (outer->vertices)[outer->numVertices - 1];
-        Q = (outer->vertices)[0];
-      }
-
-      if(j == inner->numVertices - 1) {
-        restartInner = true;
-        S = (inner->vertices)[inner->numVertices - 1];
-        T = (inner->vertices)[0];
-      }
-
-      float A1;
-      float A2;
-      float b1;
-      float b2;
-
-      if(P.x - Q.x == 0) {
-        A1 = 0;
-      }
-      else {
-        A1 = (P.y - Q.y) / (P.x - Q.x);   // Pay attention to not dividing by zero
-      }
-
-      if (S.x - T.x == 0) {
-        A2 = 0;
-      }
-      else {
-        A2 = (S.y - T.y) / (S.x - T.x);   // Pay attention to not dividing by zero
-      }
-
-      if(A1 == A2) {
-        continue;
-      }
-
-      printf("not same slope");
-
-      /* Find equation for inner polygon edge y  =mx + b form */
-
-
-      b1 = P.y - (A1 * Q.x);
-      b2 = S.y - (A2 * T.x);
-
-
-      // check if interval exists
-      // if (fmax(P.x,Q.x) < fmin(S.x,T.x)) {
-      //   printf("interval does not exist");
-      //   return false; // There is no mutual abcisses
-      // }
-
-      //
-      // if (A1 == A2) {
-      //   printf("same slope");
-      //   return false; // same slope = parallel segments
-      // }
-
-      // get point of X intersection
-
-      // if intersection is same line
-
-      // printf("a1: %f, a2:  %f", A1, A2);
-
-
-      float Xa = (b2 - b1) / (A1 - A2);     // pay attention to not dividing by 0
-
-
-      // find point of Y intersection
-      float Ya1 = A1 * Xa + b1;
-      float Ya2 = A2 * Xa + b2;
-
-      printf("Xa: %f, Ya1: %f \n", Xa, Ya1);
-      printf("Xa: %f, Ya2: %f \n", Xa, Ya2);
-
-      // doesn't satisfy both formulas
-      // ALSO CHECK : is box outside or inside
-      if(Ya1 != Ya2) {
-        // printf("Ya");
-        printf("doesnt' equal");
-        continue;
-      }
-
-      float Ya = Ya1;
-
-
-      if((S.x == Xa && S.y == Ya) || (T.x == Xa && T.y == Ya)) {
-        printf("point of intersection is a vertex");
-        continue;
-      }
-
-
-      // make sure the x intersection is within bounds
-      if ( (Xa < fmax( fmin(P.x,Q.x), fmin(S.x,T.x) )) || (Xa > fmin( fmax(P.x,Q.x), fmax(S.x,T.x) )) ) {
-        printf("not in bounds");
-        continue; // intersection is out of bound
-      }
-      else {
-        printf("intersection in bounds");
-        return true;
-      }
-
-      // all sides of one poly or both have been checked
-      if(restartInner == true)
-        printf("checked all sides no intersect");
-        break;
-    }
-  }
-  return false;
+    return false;
 }
 
 
+// To find orientation of ordered triplet (p, q, r).
+// The function returns following values
+// 0 --> p, q and r are colinear
+// 1 --> Clockwise
+// 2 --> Counterclockwise
+float orientation(Point p, Point q, Point r) {
 
+    float val = (q.y - p.y) * (r.x - q.x) -
+              (q.x - p.x) * (r.y - q.y);
+
+    if (val == 0) return 0;  // colinear
+
+    return (val > 0)? 1: 2;  // clock or counterclock wise
+}
+
+
+// returns true if line segments intersect
+bool doIntersect(Point p1, Point q1, Point p2, Point q2) {
+    // Find the four orientations needed for general and
+    // special cases
+    float o1 = orientation(p1, q1, p2);
+    float o2 = orientation(p1, q1, q2);
+    float o3 = orientation(p2, q2, p1);
+    float o4 = orientation(p2, q2, q1);
+
+    // General case
+    if (o1 != o2 && o3 != o4)
+        return true;
+
+    // // Special Cases
+    // // p1, q1 and p2 are colinear and p2 lies on segment p1q1
+    // if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+    //
+    // // p1, q1 and q2 are colinear and q2 lies on segment p1q1
+    // if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+    //
+    // // p2, q2 and p1 are colinear and p1 lies on segment p2q2
+    // if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+    //
+    //  // p2, q2 and q1 are colinear and q1 lies on segment p2q2
+    // if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+    return false; // Doesn't fall in any of the above cases
+}
 
 
 // is a circle inside a circle
@@ -288,9 +221,44 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
  * Source: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
  */
 static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
+  /* check if any sides of outer polygon intersect any sides of inner polygon
+  (intersection of line segments ) */
+  // bool restartOuter = false;
+  bool restartInner = false;
 
-  // check if centroid of inner polygon is within outer polygon
-  return !lineSegIntersect(outer, inner);
+  for(int i = 0; i < outer->numVertices ; i++) {
+    for(int j = 0; j < inner->numVertices; j++) {
+
+      // two vertices form a line
+      Point P = (outer->vertices)[i];
+      Point Q = (outer->vertices)[i + 1];
+
+      Point S = (inner->vertices)[j];
+      Point T = (inner->vertices)[j + 1];
+
+      if(i == outer->numVertices - 1) {
+        // restartOuter = true;
+        P = (outer->vertices)[outer->numVertices - 1];
+        Q = (outer->vertices)[0];
+      }
+
+      if(j == inner->numVertices - 1) {
+        restartInner = true;
+        S = (inner->vertices)[inner->numVertices - 1];
+        T = (inner->vertices)[0];
+      }
+
+      if(doIntersect(P, Q, S, T)) {
+        return false;
+      }
+
+      // all sides of one poly or both have been checked
+      if(restartInner == true)
+        printf("checked all sides no intersect");
+        break;
+    }
+  }
+  return true;
 }
 
 
