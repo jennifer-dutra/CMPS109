@@ -201,17 +201,20 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
     // printf("height: %f, ", centroid.x);
     // printf("width: %f, ", centroid.y);
 
-    // check if distance between center of circle and poly < dist from poly center to edge
-    float distCenters = sqrt (
-      pow(centroid.x - inner->center.x, 2) +
-      pow(centroid.y - inner->center.y, 2));
+    if(outer->numVertices == 4) {
+      // check if distance between center of circle and poly < dist from poly center to edge
+      float distCenters = sqrt (
+        pow(centroid.x - inner->center.x, 2) +
+        pow(centroid.y - inner->center.y, 2));
 
-    // NEEDS CONDITIONS FOR DIFF POLYGONS
-    float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
-    // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
+      // NEEDS CONDITIONS FOR DIFF POLYGONS
+      float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
+      // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
 
-    return distCenters < halfHeight;
+      return distCenters < halfHeight;
+    }
   }
+  return true;
 }
 
 
@@ -254,8 +257,8 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
         // printf("intersection");
         return false;
       }
-      else {
-        // NEEDS CONDITIONS FOR DIFF POLYGONS
+      else if(outer->numVertices == 4) {
+
         Point outerCenter = makePoint(0.0, 0.0, 0.0);
         outerCenter = findCentriod(outerCenter, outer);
 
