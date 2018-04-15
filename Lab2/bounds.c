@@ -143,23 +143,24 @@ bool doIntersect(Point p1, Point q1, Point p2, Point q2) {
     float o3 = orientation(p2, q2, p1);
     float o4 = orientation(p2, q2, q1);
 
+    // Special Cases - only vertex is touching
+    // p1, q1 and p2 are colinear and p2 lies on segment p1q1
+    if (o1 == 0 && onSegment(p1, p2, q1)) return false;
+
+    // p1, q1 and q2 are colinear and q2 lies on segment p1q1
+    if (o2 == 0 && onSegment(p1, q2, q1)) return false;
+
+    // p2, q2 and p1 are colinear and p1 lies on segment p2q2
+    if (o3 == 0 && onSegment(p2, p1, q2)) return false;
+
+     // p2, q2 and q1 are colinear and q1 lies on segment p2q2
+    if (o4 == 0 && onSegment(p2, q1, q2)) return false;
+
     // General case
-    if (o1 != o2 && o3 != o4)
-        return true;
-
-    // // Special Cases
-    // // p1, q1 and p2 are colinear and p2 lies on segment p1q1
-    // if (o1 == 0 && onSegment(p1, p2, q1)) return true;
-    //
-    // // p1, q1 and q2 are colinear and q2 lies on segment p1q1
-    // if (o2 == 0 && onSegment(p1, q2, q1)) return true;
-    //
-    // // p2, q2 and p1 are colinear and p1 lies on segment p2q2
-    // if (o3 == 0 && onSegment(p2, p1, q2)) return true;
-    //
-    //  // p2, q2 and q1 are colinear and q1 lies on segment p2q2
-    // if (o4 == 0 && onSegment(p2, q1, q2)) return true;
-
+    if (o1 != o2 && o3 != o4) {
+      printf("different orientation\n");
+      return true;
+    }
     return false; // Doesn't fall in any of the above cases
 }
 
@@ -236,6 +237,8 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
       Point S = (inner->vertices)[j];
       Point T = (inner->vertices)[j + 1];
 
+      printf("compare side %d of outer to side %d of inner\n", i, j);
+
       if(i == outer->numVertices - 1) {
         // restartOuter = true;
         P = (outer->vertices)[outer->numVertices - 1];
@@ -249,13 +252,41 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
       }
 
       if(doIntersect(P, Q, S, T)) {
+        printf("intersection");
         return false;
+      }
+      else {
+        // // NEEDS CONDITIONS FOR DIFF POLYGONS
+        // Point outerCenter = makePoint(0.0, 0.0, 0.0);
+        // outerCenter = findCentriod(outerCenter, outer);
+        //
+        // Point innerCenter = makePoint(0.0, 0.0, 0.0);
+        // innerCenter = findCentriod(innerCenter, inner);
+        //
+        // // printf("height: %f, ", centroid.x);
+        // // printf("width: %f, ", centroid.y);
+        //
+        // // check if distance between center of circle and poly < dist from poly center to edge
+        // float distCenters = sqrt (
+        //   pow(outerCenter.x - innerCenter.x, 2) +
+        //   pow(outerCenter.y - innerCenter.y, 2));
+        //
+        // // NEEDS CONDITIONS FOR DIFF POLYGONS
+        // float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
+        // // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
+        //
+        // if(distCenters > halfHeight) {
+        //   // printf("its outside");
+        //   return false;
+        // }
       }
 
       // all sides of one poly or both have been checked
-      if(restartInner == true)
-        printf("checked all sides no intersect");
+      if(restartInner == true) {
+        // printf("checked all sides no intersect");
+        restartInner = false;
         break;
+      }
     }
   }
   return true;
