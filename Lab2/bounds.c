@@ -102,6 +102,7 @@ static bool polyCircleIntersect(Circle *circle, Polygon *poly) {
   return false;
 }
 
+
 /* Source for onSegment, orientation, & doIntersect:
  * https://www.geeksforgeeks.org/orientation-3-ordered-points/
  *
@@ -113,7 +114,6 @@ bool onSegment(Point p, Point q, Point r) {
     if (q.x <= fmax(p.x, r.x) && q.x >= fmin(p.x, r.x) &&
         q.y <= fmax(p.y, r.y) && q.y >= fmin(p.y, r.y))
        return true;
-
     return false;
 }
 
@@ -124,12 +124,9 @@ bool onSegment(Point p, Point q, Point r) {
 // 1 --> Clockwise
 // 2 --> Counterclockwise
 float orientation(Point p, Point q, Point r) {
-
     float val = (q.y - p.y) * (r.x - q.x) -
               (q.x - p.x) * (r.y - q.y);
-
     if (val == 0) return 0;  // colinear
-
     return (val > 0)? 1: 2;  // clock or counterclock wise
 }
 
@@ -227,6 +224,8 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
   // bool restartOuter = false;
   bool restartInner = false;
 
+  printf(" polyInPoly ");
+
   for(int i = 0; i < outer->numVertices ; i++) {
     for(int j = 0; j < inner->numVertices; j++) {
 
@@ -237,7 +236,7 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
       Point S = (inner->vertices)[j];
       Point T = (inner->vertices)[j + 1];
 
-      printf("compare side %d of outer to side %d of inner\n", i, j);
+      // printf("compare side %d of outer to side %d of inner\n", i, j);
 
       if(i == outer->numVertices - 1) {
         // restartOuter = true;
@@ -252,33 +251,33 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
       }
 
       if(doIntersect(P, Q, S, T)) {
-        printf("intersection");
+        // printf("intersection");
         return false;
       }
       else {
-        // // NEEDS CONDITIONS FOR DIFF POLYGONS
-        // Point outerCenter = makePoint(0.0, 0.0, 0.0);
-        // outerCenter = findCentriod(outerCenter, outer);
-        //
-        // Point innerCenter = makePoint(0.0, 0.0, 0.0);
-        // innerCenter = findCentriod(innerCenter, inner);
-        //
-        // // printf("height: %f, ", centroid.x);
-        // // printf("width: %f, ", centroid.y);
-        //
-        // // check if distance between center of circle and poly < dist from poly center to edge
-        // float distCenters = sqrt (
-        //   pow(outerCenter.x - innerCenter.x, 2) +
-        //   pow(outerCenter.y - innerCenter.y, 2));
-        //
-        // // NEEDS CONDITIONS FOR DIFF POLYGONS
-        // float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
-        // // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
-        //
-        // if(distCenters > halfHeight) {
-        //   // printf("its outside");
-        //   return false;
-        // }
+        // NEEDS CONDITIONS FOR DIFF POLYGONS
+        Point outerCenter = makePoint(0.0, 0.0, 0.0);
+        outerCenter = findCentriod(outerCenter, outer);
+
+        Point innerCenter = makePoint(0.0, 0.0, 0.0);
+        innerCenter = findCentriod(innerCenter, inner);
+
+        // printf("height: %f, ", centroid.x);
+        // printf("width: %f, ", centroid.y);
+
+        // check if distance between center of circle and poly < dist from poly center to edge
+        float distCenters = sqrt (
+          pow(outerCenter.x - innerCenter.x, 2) +
+          pow(outerCenter.y - innerCenter.y, 2));
+
+        // NEEDS CONDITIONS FOR DIFF POLYGONS
+        float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
+        // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
+
+        if(distCenters > halfHeight) {
+          // printf("its outside");
+          return false;
+        }
       }
 
       // all sides of one poly or both have been checked
