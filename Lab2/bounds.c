@@ -20,11 +20,11 @@ void setup(Shape *a, Shape *shapes[], int numShapes) {
 
 // creates a Point object
 Point makePoint(float x, float y, float z) {
-    Point p;
-    p.x = x;
-    p.y = y;
-    p.z = z;
-    return p;
+  Point p;
+  p.x = x;
+  p.y = y;
+  p.z = z;
+  return p;
 }
 
 // Calculates the centroid of a polygon
@@ -90,8 +90,6 @@ static bool polyCircleIntersect(Circle *circle, Polygon *poly) {
     // check: does circle intersect side of polygon (line)
     int dist = (abs(a * x + b * y + c)) / sqrt(a * a + b * b);
 
-    // printf("dist: %d vs radius: %f ", dist, circle->radius);
-
     if(circle->radius > dist) {
       return true;
     }
@@ -155,7 +153,6 @@ bool doIntersect(Point p1, Point q1, Point p2, Point q2) {
 
     // General case
     if (o1 != o2 && o3 != o4) {
-      printf("different orientation\n");
       return true;
     }
     return false; // Doesn't fall in any of the above cases
@@ -179,13 +176,10 @@ static bool isPolygoninCircle(Circle *outer, Polygon *inner) {
       pow((inner->vertices)[i].x - outer->center.x, 2) +
       pow((inner->vertices)[i].y - outer->center.y, 2));
 
-    // printf("distToVertex: %f vs radius: %f ", distToVertex, outer->radius);
-
     if(distToVertex > outer->radius) {
       return false;
     }
   }
-  // printf("%d: , x:%f, y:%f ", 0, (inner->vertices)[0].x, (inner->vertices)[0].y);
   return true;
 }
 
@@ -198,25 +192,28 @@ static bool isCircleInPolygon(Polygon *outer, Circle *inner) {
     Point centroid = makePoint(0.0, 0.0, 0.0);
     centroid = findCentriod(centroid, outer);
 
-    // printf("height: %f, ", centroid.x);
-    // printf("width: %f, ", centroid.y);
-
     if(outer->numVertices == 4) {
       // check if distance between center of circle and poly < dist from poly center to edge
       float distCenters = sqrt (
         pow(centroid.x - inner->center.x, 2) +
         pow(centroid.y - inner->center.y, 2));
 
-      // NEEDS CONDITIONS FOR DIFF POLYGONS
       float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
-      // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
-
       return distCenters < halfHeight;
     }
   }
   return true;
 }
 
+bool isCircleInReuleux(ReuleauxTriangle *outer, Circle *inner) {
+
+  return true;
+}
+
+bool isReuleuxinCircle(Circle *outer, ReuleauxTriangle *inner) {
+
+  return true;
+}
 
 /* Check intersection of line segments
  * Source: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
@@ -227,8 +224,6 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
   // bool restartOuter = false;
   bool restartInner = false;
 
-  printf(" polyInPoly ");
-
   for(int i = 0; i < outer->numVertices ; i++) {
     for(int j = 0; j < inner->numVertices; j++) {
 
@@ -238,8 +233,6 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
 
       Point S = (inner->vertices)[j];
       Point T = (inner->vertices)[j + 1];
-
-      // printf("compare side %d of outer to side %d of inner\n", i, j);
 
       if(i == outer->numVertices - 1) {
         // restartOuter = true;
@@ -254,7 +247,6 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
       }
 
       if(doIntersect(P, Q, S, T)) {
-        // printf("intersection");
         return false;
       }
       else if(outer->numVertices == 4) {
@@ -265,27 +257,20 @@ static bool isPolygoninPolygon(Polygon *outer, Polygon *inner) {
         Point innerCenter = makePoint(0.0, 0.0, 0.0);
         innerCenter = findCentriod(innerCenter, inner);
 
-        // printf("height: %f, ", centroid.x);
-        // printf("width: %f, ", centroid.y);
-
         // check if distance between center of circle and poly < dist from poly center to edge
         float distCenters = sqrt (
           pow(outerCenter.x - innerCenter.x, 2) +
           pow(outerCenter.y - innerCenter.y, 2));
 
-        // NEEDS CONDITIONS FOR DIFF POLYGONS
         float halfHeight = abs((outer->vertices)[0].y - (outer->vertices)[1].y) / 2;
-        // printf("distbtwn: %f vs half-height: %f ", distCenters, halfHeight);
 
         if(distCenters > halfHeight) {
-          // printf("its outside");
           return false;
         }
       }
 
       // all sides of one poly or both have been checked
       if(restartInner == true) {
-        // printf("checked all sides no intersect");
         restartInner = false;
         break;
       }
@@ -313,6 +298,9 @@ bool move(Shape *shape, Point *point) {
     else if(arena->type == POLYGON) {
       return isCircleInPolygon((Polygon *)arena, (Circle *)shape);
     }
+    if(arena->type == REULEUX_TRIANGLE) {
+      return isCircleInReuleux((ReuleauxTriangle *)arena, (Circle *)shape);
+    }
   }
 
   else if(shape->type == POLYGON) {
@@ -320,22 +308,15 @@ bool move(Shape *shape, Point *point) {
     Point centroid = makePoint(0.0, 0.0, 0.0);
     centroid = findCentriod(centroid, (Polygon *)shape);
 
-    // printf(" Current centroid: %f, %f ", centroid.x, centroid.y);
-
     // find diff between centroid and point
     float xMove = point->x - centroid.x;
     float yMove = point->y - centroid.y;
-
-    // printf(" xMove: %f, yMove: %f ", xMove, yMove);
 
     // move all vertecies by this vector
     for(int i = 0; i < inner->numVertices; i++) {
       (inner->vertices)[i].x += xMove;
       (inner->vertices)[i].y += yMove;
-
-      // printf(" %d : x:%f, y:%f ", i,(inner->vertices)[i].x, (inner->vertices)[i].y);
     }
-
 
     if(arena->type == CIRCLE) {
       return isPolygoninCircle((Circle *)arena, inner);
@@ -343,6 +324,23 @@ bool move(Shape *shape, Point *point) {
     else if(arena->type == POLYGON) {
       return isPolygoninPolygon((Polygon *)arena, inner);
     }
+  }
+
+  else if(shape->type == REULEUX_TRIANGLE) {
+    // ReuleauxTriangle *inner = (ReuleauxTriangle *)shape;
+    // Point centroid = makePoint(0.0, 0.0, 0.0);
+    // centroid = findCentriod(centroid, (ReuleauxTriangle *shape);
+    //
+    // // find diff between centroid and point
+    // float xMove = point->x - centroid.x;
+    // float yMove = point->y - centroid.y;
+    //
+    // // move all vertecies by this vector
+    // for(int i = 0; i < inner->numVertices; i++) {
+    //   (inner->vertices)[i].x += xMove;
+    //   (inner->vertices)[i].y += yMove;
+    // }
+    // return isReuleuxinCircle((Circle *)arena, (ReuleauxTriangle *)shape);
   }
   return true;
 }
