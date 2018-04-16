@@ -332,7 +332,10 @@ bool move(Shape *shape, Point *point) {
     for(int i = 0; i < inner->numVertices; i++) {
       (inner->vertices)[i].x += xMove;
       (inner->vertices)[i].y += yMove;
+
+      // printf(" %d : x:%f, y:%f ", i,(inner->vertices)[i].x, (inner->vertices)[i].y);
     }
+
 
     if(arena->type == CIRCLE) {
       return isPolygoninCircle((Circle *)arena, inner);

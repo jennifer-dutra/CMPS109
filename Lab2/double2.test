@@ -5,3 +5,35 @@ shape Polygon -4,-4,0 -4,4,0 4,4,0 4,-4,0
 0 5,5,0 false
 1 0,0,0 true
 1 5,5,0 false
+
+# circle in circle
+0 0,0,0 true
+0 5,5,0 false
+0 2,2,0 true
+0 2,-2,0 true
+0 -2,2,0 true
+0 -2,-2,0 true
+0 5,5,0 false
+0 -5,5,0 false
+0 5,-5,0 false
+0 -5,-5,0 false
+0 4,0,0 true
+0 -4,0,0 true
+0 4.000000001,4.000000001,0 false
+0 -4.000000001,4.000000001,0 false
+
+# polygon in CIRCLE
+1 0,0,0 true
+1 5,5,0 false
+# inside
+1 1,0,0 true
+1 0,1,0 true
+1 1,1,0 true
+# just inside
+1 2.9,0,0 true
+# outside
+1 4,0,0 false
+1 -4,0,0 false
+1 3,3,0 false
+# just outside
+1 3,0,0 false
