@@ -1,4 +1,0 @@
-src/main.cc: In function ‘int main(int, char**)’:
-src/main.cc:15:9: warning: unused variable ‘ununsed’ [-Wunused-variable]
-     int ununsed; // to fail warning test, remove
-         ^
