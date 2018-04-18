@@ -38,9 +38,36 @@ static void testTrianglesInCircles() {
   result("Triangle-in-Circle: ", true, inner.containedWithin(outer));
 }
 
+static void testSquaresInSquares() {
+  // intersection example
+  RegularConvexPolygon outer = RegularConvexPolygon({
+    Point2D(-8, -8), Point2D(-8,8), Point2D(8,8), Point2D(8,-8)});
+  // RegularConvexPolygon inner = RegularConvexPolygon({
+  //   Point2D(-12, -2), Point2D(-12, 6), Point2D(-4, 6), Point2D(-4,-2)});
+
+  // result("Square-in-Square: ", false, inner.containedWithin(outer));
+
+  //touching example
+  // RegularConvexPolygon inner = RegularConvexPolygon({
+  //   Point2D(-8, -8), Point2D(-8,8), Point2D(8,8), Point2D(8,-8)});
+
+  // result("Square-in-Square: ", true, inner.containedWithin(outer));
+
+  // completely outside example
+  // RegularConvexPolygon inner = RegularConvexPolygon({
+  //   Point2D(-15, -0), Point2D(-15,5), Point2D(-10,5), Point2D(-10,-0)});
+
+  // completely inside
+  RegularConvexPolygon inner = RegularConvexPolygon({
+    Point2D(-3, -3), Point2D(-3,3), Point2D(3,3), Point2D(3,-3)});
+
+  result("Square-in-Square: ", true, inner.containedWithin(outer));
+}
+
 int main(int argc, char *argv[])
 {
     testCirclesInCircles();
     testCirclesInSquares();
     testTrianglesInCircles();
+    testSquaresInSquares();
 }

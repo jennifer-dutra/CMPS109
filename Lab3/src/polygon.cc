@@ -40,7 +40,21 @@ bool RegularConvexPolygon::containedWithin(Circle &circle) {
 }
 
 bool RegularConvexPolygon::containedWithin(RegularConvexPolygon &polygon) {
-    throw "Not implemented";
+    for(Line const &edgeOuter: edges()) {
+      for(Line const &edgeInner: polygon.edges()) {
+        if(Geom::intersects(edgeInner, edgeOuter)) {
+          return false;
+        }
+      }
+    }
+
+    // check if completely outside or inside
+    Line line(Geom::center(polygon), Geom::center(*this));
+    for (Line const &edge: polygon.edges()) {
+        if (Geom::intersects(edge, line))
+            return false;
+    }
+    return true;
 }
 
 bool RegularConvexPolygon::containedWithin(ReuleauxTriangle &rt) {
