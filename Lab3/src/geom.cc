@@ -27,7 +27,7 @@ double Geom::distance(const Point2D &a, const Point2D &b) {
 bool Geom::intersects(const Line &line, Circle &circle) {
     return (abs((circle.center().y - line.a.y) * (line.b.x - line.a.x) -
         (circle.center().x -  line.a.x) * (line.b.y - line.a.y)) /
-            distance(line.a, line.b)) <= circle.radius();
+            distance(line.a, line.b)) < circle.radius();
 }
 
 // Given three colinear points p, q, r, the function checks if
