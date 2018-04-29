@@ -5,30 +5,27 @@
  * the express written permission of the copyright holder.
  */
 
-#ifndef _POLYGON_H_
-#define _POLYGON_H_
-
-#include <vector>
+#ifndef _CIRCLE_H_
+#define _CIRCLE_H_
 
 #include "containable.h"
 #include "point.h"
-#include "circle.h"
-#include "line.h"
+#include "polygon.h"
 
-// C++ requires forward declaration of any cyclically dependent classes
-class Circle;
-
-class RegularConvexPolygon : public Containable2D {
+class Circle : public Containable2D {
     private:
-        std::vector<Point2D> vertices_;
+        Point2D center_;
+        double radius_;
 
     public:
         // do not change this constructor
-        RegularConvexPolygon(std::vector<Point2D> vertices);
+        Circle(const Point2D &center, double radius);
 
-        std::vector<Point2D> vertices();
-        std::vector<Line> edges();
-        int vertexCount();
+        Point2D center();
+        void setCenter(const Point2D &center);
+
+        double radius();
+        void setRadius(double radius);
 
         bool containedWithin(Circle &circle);
         bool containedWithin(RegularConvexPolygon &polygon);
