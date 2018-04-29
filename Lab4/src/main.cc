@@ -12,6 +12,7 @@
 
 #include "circle.h"
 #include "reuleauxtriangle.h"
+#include "polygon.h"
 
 #define USAGE "USAGE %s test-file\n"
 
@@ -57,6 +58,9 @@
    ReuleauxTriangle *innerRT = NULL;
    ReuleauxTriangle *outerRT = NULL;
 
+   RegularConvexPolygon *innerPoly = NULL;
+   RegularConvexPolygon *outerPoly = NULL;
+
    bool expected = false;
 
    while(stream >> token) {
@@ -69,7 +73,7 @@
        double radius = getRadius(token);
        printf("radius: %f \n", radius);
 
-       if(innerCircle == NULL && innerRT == NULL) {
+       if(innerCircle == NULL && innerRT == NULL && innerPoly == NULL) {
          innerCircle = new Circle(center, radius);
          printf("got inner circle\n");
        }
@@ -94,7 +98,7 @@
 
         Point2D RT[3] = {p1, p2, p3};
 
-        if(innerRT == NULL && innerCircle == NULL) {
+        if(innerRT == NULL && innerCircle == NULL && innerPoly == NULL) {
           innerRT = new ReuleauxTriangle(RT);
           printf("got inner RT\n");
         }
@@ -104,8 +108,32 @@
         }
       }
 
+      // square test
       if(token == "RegularConvexPolygon") {
-        
+        stream >> token;
+        Point2D p1 = getPoint(token);
+        printf("p1: %f, %f \n", p1.x, p1.y);
+
+        stream >> token;
+        Point2D p2 = getPoint(token);
+        printf("p2: %f, %f \n", p2.x, p2.y);
+
+        stream >> token;
+        Point2D p3 = getPoint(token);
+        printf("p3: %f, %f \n", p3.x, p3.y);
+
+        stream >> token;
+        Point2D p4 = getPoint(token);
+        printf("p4: %f, %f \n", p4.x, p4.y);
+
+        if(innerRT == NULL && innerCircle == NULL && innerPoly == NULL) {
+          innerPoly = new RegularConvexPolygon({p1, p2, p3, p4});
+          printf("got inner poly\n");
+        }
+        else {
+          outerPoly = new RegularConvexPolygon({p1, p2, p3, p4});
+          printf("got outer poly\n");
+        }
 
       }
 
@@ -127,6 +155,24 @@
     else if(innerRT != NULL && outerRT != NULL) {
       result = innerRT->containedWithin(*outerRT);
     }
+    else if(innerPoly != NULL && outerPoly != NULL) {
+      result = innerPoly->containedWithin(*outerPoly);
+    }
+    else if(innerCircle != NULL && outerPoly != NULL) {
+      result = innerCircle->containedWithin(*outerPoly);
+    }
+    else if(innerPoly != NULL && outerCircle != NULL) {
+      result = innerPoly->containedWithin(*outerCircle);
+    }
+    else if(innerRT != NULL && outerPoly != NULL) {
+      result = innerRT->containedWithin(*outerPoly);
+    }
+    else if(innerPoly != NULL && outerRT != NULL) {
+      result = innerPoly->containedWithin(*outerRT);
+    }
+    else {
+      printf("invalid input!!\n");
+    }
 
     std::cout << (result == expected ? "PASS" : "FAIL") << std::endl;
 
@@ -135,7 +181,6 @@
 
 int main(int argc, char *argv[])
 {
-
     if (argc < 2) {
         printf(USAGE, argv[0]);
         return -1;
@@ -155,6 +200,5 @@ int main(int argc, char *argv[])
           parse(line);
       }
     }
-
     return 0;
 }
