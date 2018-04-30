@@ -27,9 +27,12 @@ Circle 3.7,2.17 0.5 ReuleauxTriangle 0,6.928204 6,-3.46410161514 -6,-3.464101615
 # RT in RT
 ReuleauxTriangle 0,6.928204 6,-3.46410161514 -6,-3.46410161514 ReuleauxTriangle -14.14,-8.17 -0.29,16.12 13.83,-8.03 true RT in RT
 
-
 # 8x8 square centered on the origin IS contained by a circle of radius 8 centered on the origin
 RegularConvexPolygon –4,-4 -4,4 4,4 4,-4 Circle 0,0 8 true square inside circle
 
 # Circle of radius 4 centered at 3,3 IS NOT contained within an 8x8 square centered on the origin.
 Circle 3,3 4 RegularConvexPolygon –4,-4 -4,4 4,4 4,-4 false circle intersects square
+
+RegularConvexPolygon -9,-9 0,4.5 9,-9 Circle 0,0 8 false triangle intersect circle
+
+RegularConvexPolygon -30,-30 -30,-25 30,-25 30,-30 RegularConvexPolygon -8,-8 -8,8 8,8 8,-8 false poly outside poly

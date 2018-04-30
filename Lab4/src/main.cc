@@ -68,71 +68,67 @@
      if(token == "Circle") {
        stream >> token;
        Point2D center = getPoint(token);
-       printf("center: %f, %f \n", center.x, center.y);
+       // printf("center: %f, %f \n", center.x, center.y);
        stream >> token;
        double radius = getRadius(token);
-       printf("radius: %f \n", radius);
+       // printf("radius: %f \n", radius);
 
        if(innerCircle == NULL && innerRT == NULL && innerPoly == NULL) {
          innerCircle = new Circle(center, radius);
-         printf("got inner circle\n");
+         // printf("got inner circle\n");
        }
        else {
          outerCircle = new Circle(center, radius);
-         printf("got outer circle\n");
+         // printf("got outer circle\n");
        }
       }
 
       if(token == "ReuleauxTriangle") {
         stream >> token;
         Point2D p1 = getPoint(token);
-        printf("p1: %f, %f \n", p1.x, p1.y);
+        // printf("p1: %f, %f \n", p1.x, p1.y);
 
         stream >> token;
         Point2D p2 = getPoint(token);
-        printf("p2: %f, %f \n", p2.x, p2.y);
+        // printf("p2: %f, %f \n", p2.x, p2.y);
 
         stream >> token;
         Point2D p3 = getPoint(token);
-        printf("p3: %f, %f \n", p3.x, p3.y);
+        // printf("p3: %f, %f \n", p3.x, p3.y);
 
         Point2D RT[3] = {p1, p2, p3};
 
         if(innerRT == NULL && innerCircle == NULL && innerPoly == NULL) {
           innerRT = new ReuleauxTriangle(RT);
-          printf("got inner RT\n");
+          // printf("got inner RT\n");
         }
         else {
           outerRT = new ReuleauxTriangle(RT);
-          printf("got outer RT\n");
+          // printf("got outer RT\n");
         }
       }
 
       // square test
       if(token == "RegularConvexPolygon") {
-        stream >> token;
-        Point2D p1 = getPoint(token);
-        printf("p1: %f, %f \n", p1.x, p1.y);
 
+        std::vector<Point2D> polyVector;
         stream >> token;
-        Point2D p2 = getPoint(token);
-        printf("p2: %f, %f \n", p2.x, p2.y);
 
-        stream >> token;
-        Point2D p3 = getPoint(token);
-        printf("p3: %f, %f \n", p3.x, p3.y);
-
-        stream >> token;
-        Point2D p4 = getPoint(token);
-        printf("p4: %f, %f \n", p4.x, p4.y);
+        while(token != "true" && token != "false" && token != "RegularConvexPolygon"
+        && token != "Circle" && token != "ReuleauxTriangle") {
+          Point2D p = getPoint(token);
+          polyVector.push_back(p);
+          // printf("p: %f, %f \n", p.x, p.y);
+          stream >> token;
+        }
 
         if(innerRT == NULL && innerCircle == NULL && innerPoly == NULL) {
-          innerPoly = new RegularConvexPolygon({p1, p2, p3, p4});
-          printf("got inner poly\n");
+          innerPoly = new RegularConvexPolygon(polyVector);
+          // printf("got inner poly\n");
         }
         else {
-          outerPoly = new RegularConvexPolygon({p1, p2, p3, p4});
-          printf("got outer poly\n");
+          outerPoly = new RegularConvexPolygon(polyVector);
+          // printf("got outer poly\n");
         }
 
       }
@@ -171,7 +167,7 @@
       result = innerPoly->containedWithin(*outerRT);
     }
     else {
-      printf("invalid input!!\n");
+      // printf("invalid input!!\n");
     }
 
     std::cout << (result == expected ? "PASS" : "FAIL") << std::endl;
