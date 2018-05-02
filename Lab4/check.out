@@ -1,46 +1,31 @@
 
-Circle-in-Circle: PASS
-Circle-touching-Circle: PASS
-Circle-outside-Circle: PASS
-Circle-intersecting-Circle: PASS
-Circle-In-Square: PASS
-Circle-Touch-Square: PASS
-Circle-Intersect-Square: PASS
-Circle-Outside-Square: PASS
-Triangle-in-Circle: PASS
-Triangle-Touch-Circle: PASS
-Triangle-Intersect-Circle: PASS
-Triangle-Outside-Circle: PASS
-Square-Inside-Square: PASS
-Square-Touch-Square: PASS
-Square-Intersect-Square: PASS
-Square-Outside-Square: PASS
-Square-Outside-Square-spcase: PASS
-triangle-in-square: PASS
-triangle-touch-square: PASS
-RT-in-Circle: PASS
-RT-in-Circle: PASS
-RT-Intersect-Circle: PASS
-RT-Touch-Circle: PASS
-RT-Touch-Circle: PASS
-RT-edge-overlap: FAIL
-circle-in-RT-between: PASS
-circle-in-RT-tri: PASS
-circle-intersect-RT: PASS
-circle-outside-RT: PASS
-circle-intersect-RT: PASS
-Square-in-RT: PASS
-Square-intersect-RT: PASS
-Square-outside-RT: PASS
-Square-outside-RT: PASS
-triangle-in-RT-spCase: PASS
-triangle-in-RT: PASS
-RT-in-poly: FAIL
-RT-in-poly: PASS
-RT-in-RT: PASS
-RT-in-RT: PASS
-RT-in-RT: PASS
-RT-same-RT: PASS
+Test file: bounds.tests
+ Circle  got inner circle  Circle  got outer circle PASS
+ RT  got inner RT  Circle  got outer circle PASS
+ RT  got inner RT  Circle  got outer circle PASS
+ RT  got inner RT  Circle  got outer circle PASS
+ Circle  got inner circle  RT  got outer RT PASS
+ Circle  got inner circle  RT  got outer RT PASS
+ RT  got inner RT  RT  got outer RT PASS
+ entering poly my token: -4,4
+my token: 4,4
+my token: 4,-4
+my token: Circle
+ got inner poly invalid input!! PASS
+ Circle  got inner circle  entering poly my token: -4,4
+my token: 4,4
+my token: 4,-4
+my token: false
+ got outer poly PASS
+ entering poly my token: 0,4.5
+my token: 9,-9
+my token: Circle
+ got inner poly invalid input!! PASS
+ entering poly my token: -30,-25
+my token: 30,-25
+my token: 30,-30
+my token: RegularConvexPolygon
+ got inner poly invalid input!! PASS
 
-               Tests:   40/ 42     0.0%
+               Tests:   11/ 11     0.0%
 

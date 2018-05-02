@@ -36,3 +36,7 @@ Circle 3,3 4 RegularConvexPolygon –4,-4 -4,4 4,4 4,-4 false circle intersects 
 RegularConvexPolygon -9,-9 0,4.5 9,-9 Circle 0,0 8 false triangle intersect circle
 
 RegularConvexPolygon -30,-30 -30,-25 30,-25 30,-30 RegularConvexPolygon -8,-8 -8,8 8,8 8,-8 false poly outside poly
+
+Cube
+ReuleauxTetrahedron
+Sphere

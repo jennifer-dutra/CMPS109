@@ -1,0 +1,8 @@
+src/main.cc: In function ‘void parse(std::__cxx11::string)’:
+src/main.cc:194:12: error: label ‘Restart’ used but not defined
+       goto Restart;
+            ^
+src/main.cc: In function ‘int main(int, char**)’:
+src/main.cc:223:9: warning: label ‘Restart’ defined but not used [-Wunused-label]
+         Restart:
+         ^
