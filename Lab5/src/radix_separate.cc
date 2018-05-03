@@ -5,12 +5,15 @@ using namespace std;
 
   int R = 2<<8;
 
-  void initializeSort(string s[], int arraySize);
-  void sort(string s[], string aux[], int lo, int hi, int at, int arraySize);
-  int charAt(string s[], int i);
+  void initializeSort(string *s, int arraySize);
+  void sort(string *s, string *aux, int lo, int hi, int at, int arraySize);
+  int charAt(string s, int i);
+  string* convert(unsigned int *arr, int size);
 
-  void initializeSort(string s[], int arraySize) {
-      string aux[arraySize];
+  void initializeSort(string *s, int arraySize) {
+      string *aux;
+      aux = new string[arraySize];
+
       int lo = 0;
       int hi = arraySize - 1;
       int at = 0;
@@ -22,7 +25,7 @@ using namespace std;
       else return -1;
   }
 
-  void sort(string s[], string aux[], int lo, int hi, int at, int arraySize){
+  void sort(string *s, string *aux, int lo, int hi, int at, int arraySize){
 
       if(hi <= lo) return;
 
@@ -40,13 +43,28 @@ using namespace std;
       for(int r=0; r<R; ++r) sort(s, aux, lo+count[r], lo+count[r+1]-1, at+1, arraySize);
   }
 
+  string* convert(unsigned int *arr, int size) {
+
+    string *s;
+    s = new string[size];
+
+    for(int i = 0; i < size; i++) {
+      s[i] = to_string(arr[i]);
+      cout << "s[i] : " << s[i] << endl;
+    }
+
+    return s;
+
+  }
+
   int main(int argc, char *argv[]) {
 
       // string s[] = {"a", "aa", "ab", "abc", "d", "qq", "ff"};
-      string s[] = { "33", "54", "3", "135", "644", "3", "5", "13", "53", "502", "99" };
 
-      int arraySize = sizeof(s) / sizeof(string);
-      initializeSort(s, arraySize);
+      unsigned int s[] = {33, 54, 3, 135, 644, 3, 5, 13, 53, 502, 99};
+      int arraySize = sizeof(s) / sizeof(unsigned int);
+      string* stringNums = convert(s, arraySize);
+      initializeSort(stringNums, arraySize);
       for(int i = 0; i < arraySize; ++i) std::cout << s[i] << std::endl;
 
   }
