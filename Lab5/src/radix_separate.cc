@@ -1,6 +1,13 @@
 #include <iostream>
 #include <string>
 
+/*
+ * Radix sort code based off of java implementation at :
+ * http://www.codebytes.in/2015/12/msd-string-sort-java.html
+ * Converted to C++ implementation.
+ *
+ */
+
 using namespace std;
 
   int R = 2<<8;
@@ -8,7 +15,8 @@ using namespace std;
   void initializeSort(string *s, int arraySize);
   void sort(string *s, string *aux, int lo, int hi, int at, int arraySize);
   int charAt(string s, int i);
-  string* convert(unsigned int *arr, int size);
+  string* convertToString(unsigned int *arr, int size);
+  unsigned int* convertToInt(string *s, int size);
 
   void initializeSort(string *s, int arraySize) {
       string *aux;
@@ -43,28 +51,40 @@ using namespace std;
       for(int r=0; r<R; ++r) sort(s, aux, lo+count[r], lo+count[r+1]-1, at+1, arraySize);
   }
 
-  string* convert(unsigned int *arr, int size) {
+  string* convertToString(unsigned int *arr, int size) {
 
     string *s;
     s = new string[size];
 
     for(int i = 0; i < size; i++) {
       s[i] = to_string(arr[i]);
-      cout << "s[i] : " << s[i] << endl;
     }
-
     return s;
+  }
 
+  unsigned int* convertToInt(string *s, int size) {
+
+    unsigned int *arr;
+    arr = new unsigned int[size];
+
+    for(int i = 0; i < size; i++) {
+      arr[i] = atoi(s[i].c_str());
+    }
+    return arr;
   }
 
   int main(int argc, char *argv[]) {
 
-      // string s[] = {"a", "aa", "ab", "abc", "d", "qq", "ff"};
-
       unsigned int s[] = {33, 54, 3, 135, 644, 3, 5, 13, 53, 502, 99};
+
       int arraySize = sizeof(s) / sizeof(unsigned int);
-      string* stringNums = convert(s, arraySize);
+
+      string* stringNums = convertToString(s, arraySize);
+
       initializeSort(stringNums, arraySize);
-      for(int i = 0; i < arraySize; ++i) std::cout << s[i] << std::endl;
+
+      unsigned int* sorted = convertToInt(stringNums, arraySize);
+
+      for(int i = 0; i < arraySize; ++i) std::cout << sorted[i] << std::endl;
 
   }
