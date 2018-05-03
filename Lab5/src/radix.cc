@@ -7,15 +7,23 @@
 
 #include "radix.h"
 
+/*
+ * Radix sort code based off of java implementation at :
+ * http://www.codebytes.in/2015/12/msd-string-sort-java.html
+ * Converted to C++ implementation.
+ *
+ */
+
 // global variable needed for radix sort
 int R = 2<<8;
 
+// gets character at specified index in string
 int RadixSort::charAt(string s, int i){
-
     if((unsigned int)i < s.length()) return s.at(i);
     else return -1;
 }
 
+// sorts array
 void RadixSort::sort(string *s, string *aux, int lo, int hi, int at, int arraySize){
 
     if(hi <= lo) return;
@@ -34,6 +42,7 @@ void RadixSort::sort(string *s, string *aux, int lo, int hi, int at, int arraySi
     for(int r=0; r<R; ++r) sort(s, aux, lo+count[r], lo+count[r+1]-1, at+1, arraySize);
 }
 
+// initializes variables for radix sort
 void RadixSort::initializeSort(string *s, int arraySize) {
     string *aux;
     aux = new string[arraySize];
@@ -44,8 +53,8 @@ void RadixSort::initializeSort(string *s, int arraySize) {
     sort(s, aux, lo, hi, at, arraySize);
 }
 
+// converts array of integers to array of strings
 string* RadixSort::convertToString(unsigned int *arr, int size) {
-
     string *s;
     s = new string[size];
 
@@ -55,15 +64,14 @@ string* RadixSort::convertToString(unsigned int *arr, int size) {
     return s;
 }
 
-unsigned int* RadixSort::convertToInt(string *s, int size) {
-
-    unsigned int *arr;
-    arr = new unsigned int[size];
+// converts array of strings to vector of unsigned ints
+std::vector<unsigned int> RadixSort::convertToIntVector(string *s, int size) {
+    std::vector<unsigned int> vector;
 
     for(int i = 0; i < size; i++) {
-      arr[i] = atoi(s[i].c_str());
+       vector.push_back(atoi(s[i].c_str()));
     }
-    return arr;
+    return vector;
 }
 
 RadixSort::RadixSort(const unsigned int cores) {
@@ -71,25 +79,36 @@ RadixSort::RadixSort(const unsigned int cores) {
 }
 
 void RadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists) {
-    // your implementation goes here :)
 
-    unsigned int s[] = {33, 54, 3, 135, 644, 3, 5, 13, 53, 502, 99};
+    for(unsigned i = 0; i < 4; i++) {
 
-    int arraySize = sizeof(s) / sizeof(unsigned int);
+      std::vector<unsigned int> v = lists[i].get();
 
-    string* stringNums = convertToString(s, arraySize);
+      unsigned int* s = &v[i];
 
-    initializeSort(stringNums, arraySize);
+      // int arraySize = sizeof(s) / sizeof(unsigned int); // NEED TO GET RIGHT ARRAY SIZE
 
-    unsigned int* sorted = convertToInt(stringNums, arraySize);
+      int arraySize = 200;
 
-    for(int i = 0; i < arraySize; ++i) std::cout << sorted[i] << std::endl;
+      string* stringNums = convertToString(s, arraySize);
+
+      initializeSort(stringNums, arraySize);
+
+      std::vector<unsigned int> sorted = convertToIntVector(stringNums, arraySize);
+
+      lists[i].get() = sorted;
+
+      // PRINT TESTING
+      for(int i=0; i < arraySize; ++i) {
+        cout << sorted[i] << endl;
+      }
+    }
+
 
     // int size = 0;
     //
     // for (unsigned int i = 0; i < lists.size(); i++) {
-    //   // size += lists[i].get().size();
-    //
+    //   size += lists[i].get().size();
     //   size++;
     // }
     //

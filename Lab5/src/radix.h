@@ -39,5 +39,5 @@ public:
 
     string* convertToString(unsigned int *arr, int size);
 
-    unsigned int* convertToInt(string *s, int size);
+    std::vector<unsigned int> convertToIntVector(string *s, int size);
 };
