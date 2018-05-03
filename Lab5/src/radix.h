@@ -8,6 +8,9 @@
 #include <vector>
 #include <functional>
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 /*
  * Simple multi-threaded Radix Sort with support for Most Significant Digit
@@ -26,4 +29,15 @@ public:
      * unsigned integers in LISTS.
      */
     void msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists);
+
+    /* Functions for radix sort implementation */
+    void sort(string *s, string *aux, int lo, int hi, int at, int arraySize);
+
+    void initializeSort(string *s, int arraySize);
+
+    int charAt(string s, int i);
+
+    string* convertToString(unsigned int *arr, int size);
+
+    unsigned int* convertToInt(string *s, int size);
 };

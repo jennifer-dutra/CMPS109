@@ -1,67 +1,25 @@
 Numbers: 99999 Lists: 1 Cores: 1
 Generating expected results... 
-Generate time: 1.58977 seconds
+Generate time: 1.65297 seconds
 Creating RadixSort with 1 cores
 Running RadixSort.msd()... 
-Size: 1Elapsed time: 0.000008 seconds
-Comparing results... 
-List 0 FAIL
 Numbers: 99999 Lists: 2 Cores: 1
 Generating expected results... 
-Generate time: 1.87126 seconds
+Generate time: 1.8523 seconds
 Creating RadixSort with 1 cores
 Running RadixSort.msd()... 
-Size: 2Elapsed time: 0.000011 seconds
-Comparing results... 
-List 0 FAIL
-List 1 FAIL
 Numbers: 99999 Lists: 2 Cores: 2
 Generating expected results... 
-Generate time: 1.83489 seconds
+Generate time: 2.01555 seconds
 Creating RadixSort with 2 cores
 Running RadixSort.msd()... 
-Size: 2Elapsed time: 0.000010 seconds
-Comparing results... 
-List 0 FAIL
-List 1 FAIL
 Numbers: 99999 Lists: 3 Cores: 1
 Generating expected results... 
-Generate time: 2.17583 seconds
+Generate time: 2.26976 seconds
 Creating RadixSort with 1 cores
 Running RadixSort.msd()... 
-Size: 3Elapsed time: 0.000007 seconds
-Comparing results... 
-List 0 FAIL
-List 1 FAIL
-List 2 FAIL
 Numbers: 99999 Lists: 3 Cores: 2
 Generating expected results... 
-Generate time: 2.15525 seconds
+Generate time: 2.32056 seconds
 Creating RadixSort with 2 cores
 Running RadixSort.msd()... 
-Size: 3Elapsed time: 0.000009 seconds
-Comparing results... 
-List 0 FAIL
-List 1 FAIL
-List 2 FAIL
-Numbers: 99999 Lists: 3 Cores: 3
-Generating expected results... 
-Generate time: 2.14863 seconds
-Creating RadixSort with 3 cores
-Running RadixSort.msd()... 
-Size: 3Elapsed time: 0.000007 seconds
-Comparing results... 
-List 0 FAIL
-List 1 FAIL
-List 2 FAIL
-Numbers: 99999 Lists: 4 Cores: 1
-Generating expected results... 
-Generate time: 2.6536 seconds
-Creating RadixSort with 1 cores
-Running RadixSort.msd()... 
-Size: 4Elapsed time: 0.000008 seconds
-Comparing results... 
-List 0 FAIL
-List 1 FAIL
-List 2 FAIL
-List 3 FAIL
