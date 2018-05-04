@@ -1,0 +1,38 @@
+Numbers: 99999 Lists: 4 Cores: 1
+Generating expected results... 
+Generate time: 2.57728 seconds
+Creating RadixSort with 1 cores
+Running RadixSort.msd()... 
+Elapsed time: 2.198215 seconds
+Comparing results... 
+List 0 PASS
+List 1 PASS
+List 2 PASS
+List 3 PASS
+Numbers: 99999 Lists: 4 Cores: 4
+Generating expected results... 
+Generate time: 2.56134 seconds
+Creating RadixSort with 4 cores
+Running RadixSort.msd()... 
+Elapsed time: 1.836049 seconds
+Comparing results... 
+List 0 PASS
+List 1 PASS
+List 2 PASS
+List 3 PASS
+Speedup: 0.000 times faster FAIL
+Numbers: 99999 Lists: 6 Cores: 1
+Generating expected results... 
+Generate time: 3.86061 seconds
+Creating RadixSort with 1 cores
+Running RadixSort.msd()... 
+Elapsed time: 2.877639 seconds
+Comparing results... 
+List 0 PASS
+List 1 PASS
+List 2 PASS
+List 3 PASS
+List 4 PASS
+List 5 PASS
+Numbers: 99999 Lists: 6 Cores: 6
+Generating expected results... 
