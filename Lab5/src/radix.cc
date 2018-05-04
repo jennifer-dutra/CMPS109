@@ -77,13 +77,12 @@ void RadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>
 
       threads[i] = (std::thread(sortArray, lists[i].get(), listSize));
 
-      // sortArray(lists[i].get(), listSize);              // sort array s
+      // sortArray(lists[i].get(), listSize);           // sort array s
 
     }
 
-    // for(unsigned int i = 0; i < lists.size(); i++)
-    // {
-    //   threads[i].join();
-    // }
+    for(unsigned int i = 0; i < lists.size(); i++) {
+      threads[i].join();
+    }
 
 }
