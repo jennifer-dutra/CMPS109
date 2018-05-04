@@ -14,7 +14,6 @@
  *
  */
 
-
 // global variable for sorting
 static int R = 2<<8;
 
@@ -50,7 +49,8 @@ static void sort(unsigned int s[], unsigned int aux[], int lo, int hi, int at) {
      sort(s, aux, lo+count[r], lo+count[r+1]-1, at+1);
 }
 
-static void sortArray(unsigned int s[], int len) {
+static void sortArray(std::vector<unsigned int> &vec, int len) {
+   unsigned int* s = &vec[0];
    unsigned int aux[len];
    int lo = 0;
    int hi = len - 1;
@@ -60,24 +60,30 @@ static void sortArray(unsigned int s[], int len) {
 
 
 RadixSort::RadixSort(const unsigned int cores) {
-    // int ununsed = 0; // to fail complier warming test, remove
+
+
 }
 
 void RadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists) {
 
-    for(unsigned i = 0; i < lists.size(); i++) {
 
-      std::vector<unsigned int> v = lists[i].get();     // get vector
+    std::thread threads[lists.size()];
+
+    for(unsigned int i = 0; i < lists.size(); i++) {
+
+      std::cout << "Thread " << i << std::endl;
 
       int listSize = lists[i].get().size();             // get size of current list
 
-      unsigned int* s = &v[0];                          // pass reference
+      threads[i] = (std::thread(sortArray, lists[i].get(), listSize));
 
-      sortArray(s, listSize);                           // sort array s
-
-      std::vector<unsigned int> vec(s, s + listSize);   // create new vector from sorted array
-
-      lists[i].get() = vec;                             // replace original vector w/ sorted
+      // sortArray(lists[i].get(), listSize);              // sort array s
 
     }
+
+    // for(unsigned int i = 0; i < lists.size(); i++)
+    // {
+    //   threads[i].join();
+    // }
+
 }
