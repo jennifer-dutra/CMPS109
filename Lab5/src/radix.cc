@@ -66,18 +66,15 @@ RadixSort::RadixSort(const unsigned int cores) {
 
 void RadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists) {
 
-
     std::thread threads[lists.size()];
 
     for(unsigned int i = 0; i < lists.size(); i++) {
 
       std::cout << "Thread " << i << std::endl;
 
-      int listSize = lists[i].get().size();             // get size of current list
+      int listSize = lists[i].get().size();
 
-      threads[i] = (std::thread(sortArray, lists[i].get(), listSize));
-
-      // sortArray(lists[i].get(), listSize);           // sort array s
+      threads[i] = (std::thread(sortArray, lists[i], listSize));
 
     }
 
