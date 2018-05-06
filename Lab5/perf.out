@@ -1,13 +1,21 @@
 Numbers: 99999 Lists: 4 Cores: 1
 Generating expected results... 
-Generate time: 2.73943 seconds
+Generate time: 2.73449 seconds
 Creating RadixSort with 1 cores
 Running RadixSort.msd()... 
+List 0
 Thread 0
-Thread 1
-Thread 2
-Thread 3
-Elapsed time: 0.977617 seconds
+List 1
+Join thread: 0
+Thread 0
+List 2
+Join thread: 0
+Thread 0
+List 3
+Join thread: 0
+Thread 0
+Join thread: 0
+Elapsed time: 2.379509 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -15,14 +23,22 @@ List 2 PASS
 List 3 PASS
 Numbers: 99999 Lists: 4 Cores: 4
 Generating expected results... 
-Generate time: 2.75475 seconds
+Generate time: 2.6171 seconds
 Creating RadixSort with 4 cores
 Running RadixSort.msd()... 
+List 0
 Thread 0
+List 1
 Thread 1
+List 2
 Thread 2
+List 3
 Thread 3
-Elapsed time: 0.997526 seconds
+Join thread: 0
+Join thread: 1
+Join thread: 2
+Join thread: 3
+Elapsed time: 0.998064 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -31,16 +47,28 @@ List 3 PASS
 Speedup: 0.000 times faster FAIL
 Numbers: 99999 Lists: 6 Cores: 1
 Generating expected results... 
-Generate time: 4.09301 seconds
+Generate time: 4.05962 seconds
 Creating RadixSort with 1 cores
 Running RadixSort.msd()... 
+List 0
 Thread 0
-Thread 1
-Thread 2
-Thread 3
-Thread 4
-Thread 5
-Elapsed time: 1.391056 seconds
+List 1
+Join thread: 0
+Thread 0
+List 2
+Join thread: 0
+Thread 0
+List 3
+Join thread: 0
+Thread 0
+List 4
+Join thread: 0
+Thread 0
+List 5
+Join thread: 0
+Thread 0
+Join thread: 0
+Elapsed time: 3.850129 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -50,16 +78,28 @@ List 4 PASS
 List 5 PASS
 Numbers: 99999 Lists: 6 Cores: 6
 Generating expected results... 
-Generate time: 4.00741 seconds
+Generate time: 3.92823 seconds
 Creating RadixSort with 6 cores
 Running RadixSort.msd()... 
+List 0
 Thread 0
+List 1
 Thread 1
+List 2
 Thread 2
+List 3
 Thread 3
+List 4
 Thread 4
+List 5
 Thread 5
-Elapsed time: 1.422928 seconds
+Join thread: 0
+Join thread: 1
+Join thread: 2
+Join thread: 3
+Join thread: 4
+Join thread: 5
+Elapsed time: 1.423370 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -70,18 +110,34 @@ List 5 PASS
 Speedup: 0.000 times faster FAIL
 Numbers: 99999 Lists: 8 Cores: 1
 Generating expected results... 
-Generate time: 5.33303 seconds
+Generate time: 5.18059 seconds
 Creating RadixSort with 1 cores
 Running RadixSort.msd()... 
+List 0
 Thread 0
-Thread 1
-Thread 2
-Thread 3
-Thread 4
-Thread 5
-Thread 6
-Thread 7
-Elapsed time: 1.802895 seconds
+List 1
+Join thread: 0
+Thread 0
+List 2
+Join thread: 0
+Thread 0
+List 3
+Join thread: 0
+Thread 0
+List 4
+Join thread: 0
+Thread 0
+List 5
+Join thread: 0
+Thread 0
+List 6
+Join thread: 0
+Thread 0
+List 7
+Join thread: 0
+Thread 0
+Join thread: 0
+Elapsed time: 5.495955 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -93,18 +149,34 @@ List 6 PASS
 List 7 PASS
 Numbers: 99999 Lists: 8 Cores: 8
 Generating expected results... 
-Generate time: 5.51081 seconds
+Generate time: 5.22438 seconds
 Creating RadixSort with 8 cores
 Running RadixSort.msd()... 
+List 0
 Thread 0
+List 1
 Thread 1
+List 2
 Thread 2
+List 3
 Thread 3
+List 4
 Thread 4
+List 5
 Thread 5
+List 6
 Thread 6
+List 7
 Thread 7
-Elapsed time: 2.028919 seconds
+Join thread: 0
+Join thread: 1
+Join thread: 2
+Join thread: 3
+Join thread: 4
+Join thread: 5
+Join thread: 6
+Join thread: 7
+Elapsed time: 1.960463 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -117,20 +189,40 @@ List 7 PASS
 Speedup: 0.000 times faster FAIL
 Numbers: 99999 Lists: 10 Cores: 1
 Generating expected results... 
-Generate time: 6.9704 seconds
+Generate time: 6.37814 seconds
 Creating RadixSort with 1 cores
 Running RadixSort.msd()... 
+List 0
 Thread 0
-Thread 1
-Thread 2
-Thread 3
-Thread 4
-Thread 5
-Thread 6
-Thread 7
-Thread 8
-Thread 9
-Elapsed time: 2.506410 seconds
+List 1
+Join thread: 0
+Thread 0
+List 2
+Join thread: 0
+Thread 0
+List 3
+Join thread: 0
+Thread 0
+List 4
+Join thread: 0
+Thread 0
+List 5
+Join thread: 0
+Thread 0
+List 6
+Join thread: 0
+Thread 0
+List 7
+Join thread: 0
+Thread 0
+List 8
+Join thread: 0
+Thread 0
+List 9
+Join thread: 0
+Thread 0
+Join thread: 0
+Elapsed time: 6.734449 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -144,20 +236,40 @@ List 8 PASS
 List 9 PASS
 Numbers: 99999 Lists: 10 Cores: 10
 Generating expected results... 
-Generate time: 6.9553 seconds
+Generate time: 6.40149 seconds
 Creating RadixSort with 10 cores
 Running RadixSort.msd()... 
+List 0
 Thread 0
+List 1
 Thread 1
+List 2
 Thread 2
+List 3
 Thread 3
+List 4
 Thread 4
+List 5
 Thread 5
+List 6
 Thread 6
+List 7
 Thread 7
+List 8
 Thread 8
+List 9
 Thread 9
-Elapsed time: 2.466226 seconds
+Join thread: 0
+Join thread: 1
+Join thread: 2
+Join thread: 3
+Join thread: 4
+Join thread: 5
+Join thread: 6
+Join thread: 7
+Join thread: 8
+Join thread: 9
+Elapsed time: 2.342675 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -172,73 +284,3 @@ List 9 PASS
 Speedup: 0.000 times faster FAIL
 Numbers: 99999 Lists: 12 Cores: 1
 Generating expected results... 
-Generate time: 8.26262 seconds
-Creating RadixSort with 1 cores
-Running RadixSort.msd()... 
-Thread 0
-Thread 1
-Thread 2
-Thread 3
-Thread 4
-Thread 5
-Thread 6
-Thread 7
-Thread 8
-Thread 9
-Thread 10
-Thread 11
-Elapsed time: 2.942713 seconds
-Comparing results... 
-List 0 PASS
-List 1 PASS
-List 2 PASS
-List 3 PASS
-List 4 PASS
-List 5 PASS
-List 6 PASS
-List 7 PASS
-List 8 PASS
-List 9 PASS
-List 10 PASS
-List 11 PASS
-Numbers: 99999 Lists: 12 Cores: 12
-Generating expected results... 
-Generate time: 8.33611 seconds
-Creating RadixSort with 12 cores
-Running RadixSort.msd()... 
-Thread 0
-Thread 1
-Thread 2
-Thread 3
-Thread 4
-Thread 5
-Thread 6
-Thread 7
-Thread 8
-Thread 9
-Thread 10
-Thread 11
-Elapsed time: 2.943682 seconds
-Comparing results... 
-List 0 PASS
-List 1 PASS
-List 2 PASS
-List 3 PASS
-List 4 PASS
-List 5 PASS
-List 6 PASS
-List 7 PASS
-List 8 PASS
-List 9 PASS
-List 10 PASS
-List 11 PASS
-Speedup: 0.000 times faster FAIL
-----------..
-Capped 4 lists 2 cores: FAIL
-----------..
-Capped 8 lists 4 cores: FAIL
-----------..
-Capped 12 lists 6 cores: FAIL
----------...
-Capped 16 lists 8 cores: FAIL
------
