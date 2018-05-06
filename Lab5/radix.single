@@ -1,0 +1,53 @@
+Numbers: 99999 Lists: 12 Cores: 6
+Generating expected results... 
+Generate time: 8.61931 seconds
+Creating RadixSort with 6 cores
+Running RadixSort.msd()... 
+List 0
+Thread 1
+List 1
+Thread 2
+List 2
+Thread 3
+List 3
+Thread 4
+List 4
+Joining threads 
+Join thread: 0
+Join thread: 1
+Join thread: 2
+Join thread: 3
+List 5
+Thread 1
+List 6
+Thread 2
+List 7
+Thread 3
+List 8
+Thread 4
+List 9
+Joining threads 
+Join thread: 0
+Join thread: 1
+Join thread: 2
+Join thread: 3
+List 10
+Thread 1
+List 11
+Thread 2
+Join thread: 0
+Join thread: 1
+Elapsed time: 3.817431 seconds
+Comparing results... 
+List 0 PASS
+List 1 PASS
+List 2 PASS
+List 3 PASS
+List 4 FAIL
+List 5 PASS
+List 6 PASS
+List 7 PASS
+List 8 PASS
+List 9 FAIL
+List 10 PASS
+List 11 PASS

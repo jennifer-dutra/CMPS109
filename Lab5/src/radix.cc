@@ -61,6 +61,11 @@ static void sortArray(std::vector<unsigned int> &vec, int len) {
 
 RadixSort::RadixSort(const unsigned int cores) {
 
+  // declare static variabale for max number of CORES
+
+  // static unsigned int maxCores = cores;
+
+  // this is a constructor, no code needed here
 
 }
 
@@ -68,18 +73,37 @@ void RadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>
 
     std::thread threads[lists.size()];
 
+    unsigned int threadCount = 0;           // current number of threads
+
+    unsigned int maxCores = 4;              // max CPU cores used
+
     for(unsigned int i = 0; i < lists.size(); i++) {
 
-      std::cout << "Thread " << i << std::endl;
+      std::cout << "List " << i << std::endl;
 
       int listSize = lists[i].get().size();
 
-      threads[i] = (std::thread(sortArray, lists[i], listSize));
-
+      // if threadCount is less than maxCores then continue to create threads
+      if(threadCount < maxCores) {
+        threads[threadCount] = (std::thread(sortArray, lists[i], listSize));
+        threadCount++;
+        std::cout << "Thread " << threadCount << std::endl;
+      }
+      // if max number of cores in use, join all threads
+      else {
+        std::cout << "Joining threads " << std::endl;
+        for(unsigned int i = 0; i < maxCores; i++) {
+          threads[i].join();
+          std::cout << "Join thread: " << i << std::endl;
+        }
+        // reset thread count 
+        threadCount = 0;
+      }
     }
 
-    for(unsigned int i = 0; i < lists.size(); i++) {
+    // join remainging threads
+    for(unsigned int i = 0; i < threadCount; i++) {
       threads[i].join();
+      std::cout << "Join thread: " << i << std::endl;
     }
-
 }
