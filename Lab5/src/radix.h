@@ -20,7 +20,7 @@ using namespace std;
 class RadixSort {
 public:
 
-    unsigned int maxCores;
+    unsigned int maxCores;   
 
     /*
      * Create a multi-threaded RadiX Sort restricted to using no more than
