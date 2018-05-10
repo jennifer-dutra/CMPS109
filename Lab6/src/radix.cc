@@ -71,25 +71,27 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
   // create array of 10 buckets
   std::array<std::vector<unsigned int>, 10> buckets;
 
-  // put integers in bucket based on first
+  // put integers in bucket based on first digit
+  // ex. 1000 goes in bucket 1, 2000 goes in bucket 2
   for(int i = 0; i < listSize; i++) {
     int firstDigit = charAt(std::to_string(firstList[i]), 0) - 48;  // get first digit
-    (buckets.at(firstDigit)).push_back(firstList[i]);
+    (buckets.at(firstDigit)).push_back(firstList[i]);               // add to correct bucket
   }
 
-  //sort each bucket
+  // sort each bucket
   for(unsigned int i = 1; i < buckets.size(); i++) {
     sortArray(buckets.at(i), buckets.at(i).size());
   }
 
-  // print to check
-  for(unsigned int i = 0; i < buckets.at(4).size(); i++) {
-    std::cout << (buckets.at(4)).at(i) << std::endl;
-  }
+  // clear original vector
+  lists[0].get().clear();
 
   // merge sorted vectors
-  
-
+  for(unsigned int i = 0; i < buckets.size(); i++) {
+    for(unsigned int j= 0; j < buckets.at(i).size(); j++) {
+      lists[0].get().push_back(buckets.at(i).at(j));
+    }
+  }
 
   // std::thread threads[lists.size()];
   //
