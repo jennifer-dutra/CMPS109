@@ -68,8 +68,6 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
 
   int listSize = lists[0].get().size();
 
-  int bucketSize = listSize / 9;
-
   // create array of 10 buckets
   std::array<std::vector<unsigned int>, 10> buckets;
 
@@ -80,16 +78,17 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
   }
 
   //sort each bucket
-
   for(unsigned int i = 1; i < buckets.size(); i++) {
-    sortArray(buckets.at(i), bucketSize);
+    sortArray(buckets.at(i), buckets.at(i).size());
   }
 
-  // sortArray(buckets.at(2), bucketSize);
-
-  for(int i = 0; i < bucketSize; i++) {
-    std::cout << buckets.at(2)[i] << std::endl;
+  // print to check
+  for(unsigned int i = 0; i < buckets.at(4).size(); i++) {
+    std::cout << (buckets.at(4)).at(i) << std::endl;
   }
+
+  // merge sorted vectors
+  
 
 
   // std::thread threads[lists.size()];

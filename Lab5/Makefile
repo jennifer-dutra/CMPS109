@@ -2,12 +2,12 @@
 #
 # Copyright (C) 2018 David C. Harrison. All right reserved.
 #
-# You may not use, distribute, publish, or modify this code without 
+# You may not use, distribute, publish, or modify this code without
 # the express written permission of the copyright holder.
 #
 #######################################################################
 
-CFLAGS = -Wall -Isrc -lpthread
+CFLAGS = -Wall -Isrc -lpthread -g
 CC = g++ -std=c++17
 
 SRC=$(wildcard src/*.cc)
@@ -29,7 +29,7 @@ grade: clean radix
 clean:
 	@rm -f radix make.out
 
-submit: clean 
+submit: clean
 	@tar czvf ~/CMPS109-Lab5.tar.gz \
 	    --exclude Makefile.h \
-	    src/*.cc src/*.h 
+	    src/*.cc src/*.h
