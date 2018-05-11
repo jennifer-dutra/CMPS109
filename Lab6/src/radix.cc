@@ -64,34 +64,56 @@ static void sortArray(std::vector<unsigned int> &vec, int len) {
 
 void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, unsigned int cores) {
 
-  std::vector<unsigned int> firstList = lists[0].get();
+  // std::vector<unsigned int> firstList = lists[0].get();
+  //
+  // int listSize = lists[0].get().size();
 
-  int listSize = lists[0].get().size();
+  // std::thread threads[lists.size()];
+  //
+  // unsigned int threadCount = 0;               // current number of threads
 
   // create array of 10 buckets
   std::array<std::vector<unsigned int>, 10> buckets;
 
-  // put integers in bucket based on first digit
-  // ex. 1000 goes in bucket 1, 2000 goes in bucket 2
-  for(int i = 0; i < listSize; i++) {
-    int firstDigit = charAt(std::to_string(firstList[i]), 0) - 48;  // get first digit
-    (buckets.at(firstDigit)).push_back(firstList[i]);               // add to correct bucket
-  }
+  for(unsigned int i = 0; i < lists.size(); i++) {
 
-  // sort each bucket
-  for(unsigned int i = 1; i < buckets.size(); i++) {
-    sortArray(buckets.at(i), buckets.at(i).size());
-  }
+    // get current list and list size
+    std::vector<unsigned int> currList = lists[i].get();
+    int listSize = lists[i].get().size();
 
-  // clear original vector
-  lists[0].get().clear();
+    // put integers in bucket based on first digit
+    // ex. 1000 goes in bucket 1, 2000 goes in bucket 2
+    for(int j = 0; j < listSize; j++) {
+      int firstDigit = charAt(std::to_string(currList[j]), 0) - 48;  // get first digit
+      (buckets.at(firstDigit)).push_back(currList[j]);               // add to correct bucket
+    }
 
-  // merge sorted vectors
-  for(unsigned int i = 0; i < buckets.size(); i++) {
-    for(unsigned int j= 0; j < buckets.at(i).size(); j++) {
-      lists[0].get().push_back(buckets.at(i).at(j));
+    // sort each bucket
+    for(unsigned int j = 1; j < buckets.size(); j++) {
+
+      // threads[threadCount] = (std::thread(sortArray, buckets.at(j), buckets.at(j).size()));
+      // threadCount++;
+
+      sortArray(buckets.at(j), buckets.at(j).size());
+    }
+
+    // join remaining threads
+    // for(unsigned int i = 0; i < threadCount; i++) {
+    //   threads[i].join();
+    // }
+
+    // clear original vector
+    lists[i].get().clear();
+
+    // merge sorted vectors
+    for(unsigned int k = 0; k < buckets.size(); k++) {
+      for(unsigned int j = 0; j < buckets.at(k).size(); j++) {
+        lists[i].get().push_back(buckets.at(k).at(j));
+      }
+      buckets.at(k).clear();
     }
   }
+
 
   // std::thread threads[lists.size()];
   //
