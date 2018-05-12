@@ -1,26 +1,26 @@
 Numbers: 500,000 Lists: 1 Cores: 12
 Generating 500,000 random numbers... 
 Generating expected results... 
-Generate time: 2.03314 seconds
+Generate time: 1.94198 seconds
 Running RadixSort::msd() with 12 cores
-Elapsed time: 2.564213 seconds
+Elapsed time: 3.834288 seconds
 Comparing results... 
 List 0 PASS
 Numbers: 500,000 Lists: 2 Cores: 12
 Generating 1,000,000 random numbers... 
 Generating expected results... 
-Generate time: 3.88495 seconds
+Generate time: 3.79143 seconds
 Running RadixSort::msd() with 12 cores
-Elapsed time: 5.097383 seconds
+Elapsed time: 7.025834 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
 Numbers: 500,000 Lists: 3 Cores: 12
 Generating 1,500,000 random numbers... 
 Generating expected results... 
-Generate time: 5.89458 seconds
+Generate time: 5.61178 seconds
 Running RadixSort::msd() with 12 cores
-Elapsed time: 7.677170 seconds
+Elapsed time: 12.032731 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS
@@ -28,9 +28,9 @@ List 2 PASS
 Numbers: 500,000 Lists: 4 Cores: 12
 Generating 2,000,000 random numbers... 
 Generating expected results... 
-Generate time: 7.66353 seconds
+Generate time: 7.48242 seconds
 Running RadixSort::msd() with 12 cores
-Elapsed time: 10.249257 seconds
+Elapsed time: 16.300978 seconds
 Comparing results... 
 List 0 PASS
 List 1 PASS

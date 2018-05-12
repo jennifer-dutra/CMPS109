@@ -1,11 +1,11 @@
-Numbers: 500,000 Lists: 1 Cores: 10
+Numbers: 500,000 Lists: 1 Cores: 20
 Generating 500,000 random numbers... 
 Generating expected results... 
-Generate time: 2.09557 seconds
+Generate time: 2.07994 seconds
 Running ParallelRadixSort.msd() with 1 core... 
-Single Elapsed time: 2.758715 seconds
-Running ParallelRadixSort.msd() with 10 cores
-Cores Elapsed time: 3.311826 seconds
-Speedup: 83%
+Single Elapsed time: 3.920414 seconds
+Running ParallelRadixSort.msd() with 20 cores
+Cores Elapsed time: 4.371034 seconds
+Speedup: 89%
 Comparing results... 
 List 0 PASS
