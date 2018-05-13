@@ -64,23 +64,17 @@ static void sortArray(std::vector<unsigned int> &vec, int len) {
 
 void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, unsigned int cores) {
 
-
-
-  std::array<std::vector<unsigned int>, 10> buckets;
-
-  std::thread threads[buckets.size()];    // create array of 10 buckets
-
-
-  unsigned int currThreads = 0;           // current number of threads
-  unsigned int totalThreads = 0;          // current number of threads
+  std::array<std::vector<unsigned int>, 10> buckets;    // create array of 10 buckets
 
 
   for(unsigned int i = 0; i < lists.size(); i++) {
 
-    // get current list and list size
-    std::vector<unsigned int> currList = lists[i].get();
+    std::thread threads[buckets.size()];                  // create array of threads
+    unsigned int currThreads = 0;                         // current number of threads running
+    unsigned int totalThreads = 0;                        // total threads used
 
-    int listSize = lists[i].get().size();
+    std::vector<unsigned int> currList = lists[i].get();  // copy of current list
+    int listSize = lists[i].get().size();                 // size of current list
 
     // put integers in bucket based on first digit
     // ex. 1000 goes in bucket 1, 2000 goes in bucket 2
@@ -106,6 +100,7 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
 
     // clear original vector
     lists[i].get().clear();
+
 
     // merge sorted vectors
     for(unsigned int k = 0; k < buckets.size(); k++) {
