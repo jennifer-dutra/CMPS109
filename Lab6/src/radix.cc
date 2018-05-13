@@ -65,15 +65,21 @@ static void sortArray(std::vector<unsigned int> &vec, int len) {
 void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, unsigned int cores) {
 
 
-  // create array of 10 buckets
+
   std::array<std::vector<unsigned int>, 10> buckets;
 
-  std::thread threads[buckets.size()];
+  std::thread threads[buckets.size()];    // create array of 10 buckets
+
+
+  unsigned int currThreads = 0;           // current number of threads
+  unsigned int totalThreads = 0;          // current number of threads
+
 
   for(unsigned int i = 0; i < lists.size(); i++) {
 
     // get current list and list size
     std::vector<unsigned int> currList = lists[i].get();
+
     int listSize = lists[i].get().size();
 
     // put integers in bucket based on first digit
@@ -86,13 +92,16 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
     // sort each bucket
     for(unsigned int j = 1; j < buckets.size(); j++) {
 
-      threads[j] = (std::thread(sortArray, std::ref(buckets.at(j)), buckets.at(j).size()));
+      threads[currThreads] = (std::thread(sortArray, std::ref(buckets.at(j)), buckets.at(j).size()));
+      currThreads++;
+      totalThreads++;
 
-    }
-
-    // join remaining threads
-    for(unsigned int j = 1; j <  buckets.size(); j++) {
-      threads[j].join();
+      if(currThreads == cores || totalThreads ==  buckets.size() - 1) {
+        for(unsigned int k = 0; k < currThreads; k++) {
+          threads[k].join();
+        }
+        currThreads = 0;
+      }
     }
 
     // clear original vector
@@ -106,30 +115,4 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
       buckets.at(k).clear();
     }
   }
-
-
-  // std::thread threads[lists.size()];
-  //
-  // unsigned int threadCount = 0;               // current number of threads
-  //
-  // for(unsigned int i = 0; i < lists.size(); i++) {
-  //
-  //   int listSize = lists[i].get().size();     // number of elements in each list
-  //
-  //   // if threadCount is less than maxCores then continue to create threads
-  //   threads[threadCount] = (std::thread(sortArray, lists[i], listSize));
-  //   threadCount++;
-  //
-  //   if(threadCount == cores) {
-  //     for(unsigned int i = 0; i < cores; i++) {
-  //       threads[i].join();
-  //     }
-  //     threadCount = 0;    // reset thread count
-  //   }
-  // }
-  //
-  // // join remaining threads
-  // for(unsigned int i = 0; i < threadCount; i++) {
-  //   threads[i].join();
-  // }
 }
