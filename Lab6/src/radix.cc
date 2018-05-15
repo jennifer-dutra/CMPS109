@@ -135,7 +135,7 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
       buckets.at(j).clear();
     }
 
-    // // merge back into vectors by MSD
+    // merge back into vectors by MSD
     for(unsigned int j = 0; j < splitBuckets.size(); j++) {
       int firstDigit = charAt(std::to_string(splitBuckets.at(j).at(0)), 0) - 48;  // get first digit
       for(unsigned int k = 0; k < splitBuckets.at(j).size(); k++) {
@@ -143,20 +143,52 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
       }
     }
 
-    //  print the merge!!
-
+    //  print the merge of split buckets!!
     // for(unsigned int k = 0; k < splitBuckets.size(); k++) {
     //   for(unsigned int l = 0; l < splitBuckets.at(k).size(); l++) {
     //     std::cout << splitBuckets.at(k).at(l) << std::endl;
     //   }
     // }
 
-    for(unsigned int k = 1; k < buckets.size(); k++) {
-      std::cout << "bucket: -------------------" << k << std::endl;
-      for(unsigned int l = 0; l < buckets.at(k).size(); l++) {
-        std::cout << buckets.at(k).at(l) << std::endl;
+    // for(unsigned int k = 1; k < buckets.size(); k++) {
+    //   std::cout << "bucket: -------------------" << k << std::endl;
+    //   for(unsigned int l = 0; l < buckets.at(k).size(); l++) {
+    //     std::cout << buckets.at(k).at(l) << std::endl;
+    //   }
+    // }
+
+
+    // sort each nearly sorted bucket
+
+    std::thread bucketThreads[buckets.size()]; // create a thread for every bucket
+    currThreads = 0;
+    totalThreads = 0;
+
+    for(unsigned int j = 1; j < buckets.size(); j++) {
+
+      bucketThreads[currThreads] = (std::thread(sortArray, std::ref(buckets.at(j)), buckets.at(j).size()));
+      currThreads++;
+      totalThreads++;
+
+      if(currThreads == cores || totalThreads ==  splitBuckets.size() - 1) {
+        for(unsigned int k = 0; k < currThreads; k++) {
+          bucketThreads[k].join();
+        }
+        currThreads = 0;
       }
     }
+
+    // clear original vector
+   lists[i].get().clear();
+
+
+   // merge sorted vectors
+   for(unsigned int k = 0; k < buckets.size(); k++) {
+     for(unsigned int j = 0; j < buckets.at(k).size(); j++) {
+       lists[i].get().push_back(buckets.at(k).at(j));
+     }
+     buckets.at(k).clear();
+   }
 
 
   }
