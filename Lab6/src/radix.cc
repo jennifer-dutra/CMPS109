@@ -64,14 +64,9 @@ static void sortArray(std::vector<unsigned int> &vec, int len) {
 
 void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, unsigned int cores) {
 
+  std::vector<std::vector<unsigned int>> buckets(10);     // buckets by MSD
 
-  std::vector<std::vector<unsigned int>> buckets(10);
-
-  std::vector<std::vector<unsigned int>> splitBuckets;
-
-
-  std::thread listThread[lists.size()];
-
+  std::vector<std::vector<unsigned int>> splitBuckets;    // all sub buckets
 
   for(unsigned int i = 0; i < lists.size(); i++) {
 
@@ -96,33 +91,24 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
         smallestBucket = buckets.at(j).size();
       }
     }
-    std::cout << "smallest bucket: " << smallestBucket << std::endl;
 
-    // divide buckets
-    float bucketDivide;
+
+    // create sub buckets based on size compared to smallest bucket
+    // Code for making sub vectors from: https://wandbox.org/permlink/XYTiDZpOUiom1xMc
     for(unsigned int j = 1; j < buckets.size(); j++) {
-      if(smallestBucket < buckets.at(j).size()) {
-        bucketDivide = (float)buckets.at(j).size() / smallestBucket;
-        bucketDivide = floor(bucketDivide);
-        std::cout << "divide bucket by: " << bucketDivide << std::endl;
-      }
+      int bunch_size = smallestBucket;
+  	  std::vector<std::vector<unsigned int>> sub;
+  	  sub.reserve((buckets.at(j).size() + 1) /  bunch_size);
 
-      // create sub buckets based on size compared to smallest bucket
-      // Code for making sub vectors from: https://wandbox.org/permlink/XYTiDZpOUiom1xMc
+    	for(size_t k = 0; k < buckets.at(j).size(); k += bunch_size) {
+    		auto last = std::min(buckets.at(j).size(), k + bunch_size);
+    		sub.emplace_back(buckets.at(j).begin() + k, buckets.at(j).begin() + last);
+    	}
 
-      if(bucketDivide > 1) {
-        int bunch_size = bucketDivide;
-    	  std::vector<std::vector<unsigned int>> sub;
-    	  sub.reserve((buckets.at(j).size() + 1) /  bunch_size);
-
-      	for(size_t k = 0; k < buckets.at(j).size(); k += bunch_size) {
-      		auto last = std::min(buckets.at(j).size(), k + bunch_size);
-      		sub.emplace_back(buckets.at(j).begin() + k, buckets.at(j).begin() + last);
-      	}
-
-        for(unsigned int k = 0; k < sub.size(); k++) {
-          splitBuckets.push_back(sub.at(k));
-        }
+      // add all sub buckets to the same vector
+      // we will sort all of these vectors in order
+      for(unsigned int k = 0; k < sub.size(); k++) {
+        splitBuckets.push_back(sub.at(k));
       }
     }
 
