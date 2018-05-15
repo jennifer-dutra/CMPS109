@@ -116,7 +116,7 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
     std::thread threads[splitBuckets.size()]; // create a thread for every sub bucket
 
     // sort each bucket
-    for(unsigned int j = 0; j < splitBuckets.size(); j++) {
+    for(unsigned int j = 0; j < splitBuckets.size() - 1; j++) {
 
       threads[currThreads] = (std::thread(sortArray, std::ref(splitBuckets.at(j)), splitBuckets.at(j).size()));
       currThreads++;
@@ -150,14 +150,15 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
     //   }
     // }
 
-    // for(unsigned int k = 1; k < buckets.size(); k++) {
-    //   std::cout << "bucket: -------------------" << k << std::endl;
-    //   for(unsigned int l = 0; l < buckets.at(k).size(); l++) {
-    //     std::cout << buckets.at(k).at(l) << std::endl;
-    //   }
-    // }
+    // print buckets
+    for(unsigned int k = 1; k < buckets.size(); k++) {
+      std::cout << "bucket: -------------------" << k << std::endl;
+      for(unsigned int l = 0; l < buckets.at(k).size(); l++) {
+        std::cout << buckets.at(k).at(l) << std::endl;
+      }
+    }
 
-
+    // BAD MERGE
     // sort each nearly sorted bucket
 
     std::thread bucketThreads[buckets.size()]; // create a thread for every bucket
@@ -170,7 +171,7 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
       currThreads++;
       totalThreads++;
 
-      if(currThreads == cores || totalThreads ==  splitBuckets.size() - 1) {
+      if(currThreads == cores || totalThreads ==  buckets.size() - 1) {
         for(unsigned int k = 0; k < currThreads; k++) {
           bucketThreads[k].join();
         }
@@ -179,7 +180,7 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
     }
 
     // clear original vector
-   lists[i].get().clear();
+    lists[i].get().clear();
 
 
    // merge sorted vectors
@@ -189,7 +190,6 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
      }
      buckets.at(k).clear();
    }
-
 
   }
 }
