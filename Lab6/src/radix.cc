@@ -130,23 +130,34 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
       }
     }
 
-    // print the merge!!
+    // clear MSD buckets
+    for(unsigned int j = 1; j < buckets.size(); j++) {
+      buckets.at(j).clear();
+    }
 
-    for(unsigned int k = 0; k < splitBuckets.size(); k++) {
-      for(unsigned int l = 0; l < splitBuckets.at(k).size(); l++) {
-        std::cout << splitBuckets.at(k).at(l) << std::endl;
+    // // merge back into vectors by MSD
+    for(unsigned int j = 0; j < splitBuckets.size(); j++) {
+      int firstDigit = charAt(std::to_string(splitBuckets.at(j).at(0)), 0) - 48;  // get first digit
+      for(unsigned int k = 0; k < splitBuckets.at(j).size(); k++) {
+        buckets.at(firstDigit).push_back(splitBuckets.at(j).at(k));
       }
     }
 
-    // // clear original vector
-    // lists[i].get().clear();
-    //
-    // // merge sorted vectors
+    //  print the merge!!
+
     // for(unsigned int k = 0; k < splitBuckets.size(); k++) {
-    //   for(unsigned int j = 0; j < splitBuckets.at(k).size(); j++) {
-    //     lists[i].get().push_back(splitBuckets.at(k).at(j));
+    //   for(unsigned int l = 0; l < splitBuckets.at(k).size(); l++) {
+    //     std::cout << splitBuckets.at(k).at(l) << std::endl;
     //   }
-    //   splitBuckets.at(k).clear();
     // }
+
+    for(unsigned int k = 1; k < buckets.size(); k++) {
+      std::cout << "bucket: -------------------" << k << std::endl;
+      for(unsigned int l = 0; l < buckets.at(k).size(); l++) {
+        std::cout << buckets.at(k).at(l) << std::endl;
+      }
+    }
+
+
   }
 }
