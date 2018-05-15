@@ -65,11 +65,9 @@ static void sortArray(std::vector<unsigned int> &vec, int len) {
 void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, unsigned int cores) {
 
   std::vector<std::vector<unsigned int>> buckets(10);     // buckets by MSD
-
-  std::vector<std::vector<unsigned int>> splitBuckets;    // all sub buckets
+  std::vector<std::vector<unsigned int>> splitBuckets;    // all sub buckets of equal size
 
   for(unsigned int i = 0; i < lists.size(); i++) {
-
 
     unsigned int currThreads = 0;                         // current number of threads running
     unsigned int totalThreads = 0;                        // total threads used
@@ -90,8 +88,10 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
       if(buckets.at(j).size() < smallestBucket && smallestBucket != 0) {
         smallestBucket = buckets.at(j).size();
       }
+      else if(smallestBucket == 0) {
+        smallestBucket = 1;
+      }
     }
-
 
     // create sub buckets based on size compared to smallest bucket
     // Code for making sub vectors from: https://wandbox.org/permlink/XYTiDZpOUiom1xMc
@@ -113,16 +113,16 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
     }
 
 
-    std::thread threads[buckets.size()];                  // create array of threads
+    std::thread threads[splitBuckets.size()]; // create a thread for every sub bucket
 
     // sort each bucket
-    for(unsigned int j = 1; j < buckets.size(); j++) {
+    for(unsigned int j = 0; j < splitBuckets.size(); j++) {
 
-      threads[currThreads] = (std::thread(sortArray, std::ref(buckets.at(j)), buckets.at(j).size()));
+      threads[currThreads] = (std::thread(sortArray, std::ref(splitBuckets.at(j)), splitBuckets.at(j).size()));
       currThreads++;
       totalThreads++;
 
-      if(currThreads == cores || totalThreads ==  buckets.size() - 1) {
+      if(currThreads == cores || totalThreads ==  splitBuckets.size() - 1) {
         for(unsigned int k = 0; k < currThreads; k++) {
           threads[k].join();
         }
@@ -130,16 +130,23 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
       }
     }
 
-    // clear original vector
-    lists[i].get().clear();
+    // print the merge!!
 
-
-    // merge sorted vectors
-    for(unsigned int k = 0; k < buckets.size(); k++) {
-      for(unsigned int j = 0; j < buckets.at(k).size(); j++) {
-        lists[i].get().push_back(buckets.at(k).at(j));
+    for(unsigned int k = 0; k < splitBuckets.size(); k++) {
+      for(unsigned int l = 0; l < splitBuckets.at(k).size(); l++) {
+        std::cout << splitBuckets.at(k).at(l) << std::endl;
       }
-      buckets.at(k).clear();
     }
+
+    // // clear original vector
+    // lists[i].get().clear();
+    //
+    // // merge sorted vectors
+    // for(unsigned int k = 0; k < splitBuckets.size(); k++) {
+    //   for(unsigned int j = 0; j < splitBuckets.at(k).size(); j++) {
+    //     lists[i].get().push_back(splitBuckets.at(k).at(j));
+    //   }
+    //   splitBuckets.at(k).clear();
+    // }
   }
 }
