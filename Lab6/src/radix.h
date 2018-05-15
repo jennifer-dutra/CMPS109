@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <math.h> 
 
 /*
  * Parallel Radix Sort with support for Most Significant Digit sorting only.

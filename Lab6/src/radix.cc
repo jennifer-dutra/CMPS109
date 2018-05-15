@@ -64,12 +64,18 @@ static void sortArray(std::vector<unsigned int> &vec, int len) {
 
 void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, unsigned int cores) {
 
-  std::array<std::vector<unsigned int>, 10> buckets;    // create array of 10 buckets
+
+  std::vector<std::vector<unsigned int>> buckets(10);
+
+  std::vector<std::vector<unsigned int>> splitBuckets;
+
+
+  std::thread listThread[lists.size()];
 
 
   for(unsigned int i = 0; i < lists.size(); i++) {
 
-    std::thread threads[buckets.size()];                  // create array of threads
+
     unsigned int currThreads = 0;                         // current number of threads running
     unsigned int totalThreads = 0;                        // total threads used
 
@@ -79,9 +85,49 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
     // put integers in bucket based on first digit
     // ex. 1000 goes in bucket 1, 2000 goes in bucket 2
     for(int j = 0; j < listSize; j++) {
-      int firstDigit = charAt(std::to_string(currList[j]), 0) - 48;  // get first digit
-      (buckets.at(firstDigit)).push_back(currList[j]);               // add to correct bucket
+      int firstDigit = charAt(std::to_string(currList.at(j)), 0) - 48;  // get first digit
+      (buckets.at(firstDigit)).push_back(currList.at(j));               // add to correct bucket
     }
+
+    // find the smallest bucket size
+    unsigned int smallestBucket = buckets.at(1).size();
+    for(unsigned int j = 1; j < buckets.size(); j++) {
+      if(buckets.at(j).size() < smallestBucket && smallestBucket != 0) {
+        smallestBucket = buckets.at(j).size();
+      }
+    }
+    std::cout << "smallest bucket: " << smallestBucket << std::endl;
+
+    // divide buckets
+    float bucketDivide;
+    for(unsigned int j = 1; j < buckets.size(); j++) {
+      if(smallestBucket < buckets.at(j).size()) {
+        bucketDivide = (float)buckets.at(j).size() / smallestBucket;
+        bucketDivide = floor(bucketDivide);
+        std::cout << "divide bucket by: " << bucketDivide << std::endl;
+      }
+
+      // create sub buckets based on size compared to smallest bucket
+      // Code for making sub vectors from: https://wandbox.org/permlink/XYTiDZpOUiom1xMc
+
+      if(bucketDivide > 1) {
+        int bunch_size = bucketDivide;
+    	  std::vector<std::vector<unsigned int>> sub;
+    	  sub.reserve((buckets.at(j).size() + 1) /  bunch_size);
+
+      	for(size_t k = 0; k < buckets.at(j).size(); k += bunch_size) {
+      		auto last = std::min(buckets.at(j).size(), k + bunch_size);
+      		sub.emplace_back(buckets.at(j).begin() + k, buckets.at(j).begin() + last);
+      	}
+
+        for(unsigned int k = 0; k < sub.size(); k++) {
+          splitBuckets.push_back(sub.at(k));
+        }
+      }
+    }
+
+
+    std::thread threads[buckets.size()];                  // create array of threads
 
     // sort each bucket
     for(unsigned int j = 1; j < buckets.size(); j++) {
