@@ -1,0 +1,30 @@
+Numbers: 100,000 Lists: 1 Cores: 4
+Generating 100,000 random numbers... 
+Generating expected results... 
+Generate time: 0.76865 seconds
+CruzID: ü€K‚ù.
+Running INTERNAL RadixServer on port 5001 with 4 cores
+Running STUDENT  RadixClient
+Elapsed time: 0.000023 seconds
+Comparing results... 
+List 0 FAIL
+Numbers: 100,000 Lists: 1 Cores: 4
+Generating 100,000 random numbers... 
+Generating expected results... 
+Generate time: 0.828894 seconds
+CruzID: (áÚº‚ù.
+Running STUDENT  RadixServer on port 5001 with 4 cores
+Running INTERNAL RadixClient
+Elapsed time: 9.009179 seconds
+Comparing results... 
+List 0 PASS
+Numbers: 100,000 Lists: 1 Cores: 4
+Generating 100,000 random numbers... 
+Generating expected results... 
+Generate time: 0.834949 seconds
+CruzID: LÑ×B…ù.
+Running STUDENT  RadixServer on port 5001 with 4 cores
+Running STUDENT  RadixClient
+Elapsed time: 0.000017 seconds
+Comparing results... 
+List 0 FAIL

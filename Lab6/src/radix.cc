@@ -114,6 +114,8 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
 
 
     std::thread threads[splitBuckets.size()]; // create a thread for every sub bucket
+    currThreads = 0;
+    totalThreads = 0;
 
     // sort each bucket
     for(unsigned int j = 0; j < splitBuckets.size() - 1; j++) {
@@ -151,12 +153,12 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
     // }
 
     // print buckets
-    for(unsigned int k = 1; k < buckets.size(); k++) {
-      std::cout << "bucket: -------------------" << k << std::endl;
-      for(unsigned int l = 0; l < buckets.at(k).size(); l++) {
-        std::cout << buckets.at(k).at(l) << std::endl;
-      }
-    }
+    // for(unsigned int k = 1; k < buckets.size(); k++) {
+    //   std::cout << "bucket: -------------------" << k << std::endl;
+    //   for(unsigned int l = 0; l < buckets.at(k).size(); l++) {
+    //     std::cout << buckets.at(k).at(l) << std::endl;
+    //   }
+    // }
 
     // BAD MERGE
     // sort each nearly sorted bucket
@@ -190,6 +192,5 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
      }
      buckets.at(k).clear();
    }
-
   }
 }
