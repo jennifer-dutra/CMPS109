@@ -103,13 +103,52 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
 }
 
 RadixServer::RadixServer(const int port, const unsigned int cores) {
-    // your server implementation goes here :)
+
+    struct sockaddr_in server_addr;
+
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if(sockfd < 0) exit(-1);
+
+    bzero((char *) &server_addr, sizeof(server_addr));
+    int portno = port;
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(portno);
+
+    if(bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+      exit(-1);
+
+    listen(sockfd, 5);
+
+    struct sockaddr_in client_addr;
+    socklen_t len = sizeof(client_addr);
+
+    int newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &len);
+    if (newsockfd < 0) exit(-1);
+
+    unsigned int onWire = 0;
+    int n = recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+    unsigned int local = ntohl(onWire);
+
+    
+
+    std::cout << "YOUR NUM: " << local << std::endl;
+
+    if(n < 0) exit(-1);
+
+
+    close(newsockfd);
+
+
+    close(sockfd);
+
 }
 
 void RadixClient::msd(const char *hostname, const int port, std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0) std::cerr << ("open") << std::endl;
-    
+
     struct hostent *server = gethostbyname(hostname);
     if(hostname == NULL) exit(-1);
 
@@ -124,7 +163,12 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
       exit(-1);
     }
 
-    // send ints here
+    // send a number
+    unsigned int local = 1024;
+    unsigned int onWire = htonl(local);
+    send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+
+    std::cout << "YOUR NUM: " << local << std::endl;
 
     close(sockfd);
 
