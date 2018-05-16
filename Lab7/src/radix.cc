@@ -131,7 +131,6 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
     int n = recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
     unsigned int local = ntohl(onWire);
 
-    
 
     std::cout << "YOUR NUM: " << local << std::endl;
 
@@ -147,7 +146,7 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
 
 void RadixClient::msd(const char *hostname, const int port, std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if(sockfd < 0) std::cerr << ("open") << std::endl;
+    if(sockfd < 0) exit(-1);
 
     struct hostent *server = gethostbyname(hostname);
     if(hostname == NULL) exit(-1);
@@ -163,12 +162,33 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
       exit(-1);
     }
 
-    // send a number
-    unsigned int local = 1024;
-    unsigned int onWire = htonl(local);
+    std::vector<unsigned int> currList = lists[0].get();  // get first list
+    int listSize = lists[0].get().size();                 // get first list
+
+    // send all numbers in list
+    unsigned int local;
+    unsigned int onWire;
+
+    for(int i = 0; i < listSize; i++) {
+      local = currList.at(i);
+      onWire = htonl(local);
+      send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+    }
+
+    // send 0
+    local = 0;
+    onWire = htonl(local);
     send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
 
-    std::cout << "YOUR NUM: " << local << std::endl;
+
+    for(int i = 0; i < listSize; i++) {
+      onWire = 0;
+      recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+      local = ntohl(onWire);
+
+      std::cout << "YOUR NUM: " << local << std::endl;
+    }
+
 
     close(sockfd);
 
