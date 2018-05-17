@@ -104,44 +104,41 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
 
 RadixServer::RadixServer(const int port, const unsigned int cores) {
 
-    struct sockaddr_in server_addr;
-
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0) exit(-1);
 
+    struct sockaddr_in server_addr;
     bzero((char *) &server_addr, sizeof(server_addr));
-    int portno = port;
 
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(portno);
+    server_addr.sin_port = htons(port);
 
     if(bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
       exit(-1);
 
     listen(sockfd, 5);
 
-    struct sockaddr_in client_addr;
-    socklen_t len = sizeof(client_addr);
+    for(;;) {
+      struct sockaddr_in client_addr;
+      socklen_t len = sizeof(client_addr);
 
-    int newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &len);
-    if (newsockfd < 0) exit(-1);
+      int newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &len);
+      if (newsockfd < 0) exit(-1);
 
-    unsigned int onWire = 0;
-    int n = recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
-    unsigned int local = ntohl(onWire);
+      unsigned int onWire;
+      unsigned int local;
 
+      onWire = 0;
+      int n = recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+      std::cout << n << std::endl;
+      if(n < 0) exit(-1);
+      local = ntohl(onWire);
 
-    std::cout << "YOUR NUM: " << local << std::endl;
-
-    if(n < 0) exit(-1);
-
-
-    close(newsockfd);
-
-
+      std::cout << local << std::endl;
+      close(newsockfd);
+    }
     close(sockfd);
-
 }
 
 void RadixClient::msd(const char *hostname, const int port, std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists) {
@@ -192,8 +189,7 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
         recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
         local = ntohl(onWire);
 
-        std::cout << "YOUR NUM: " << local << std::endl;  // TESTING
-
+        // std::cout << "YOUR NUM: " << local << std::endl;  // TESTING
         lists[i].get().push_back(local);        // add to correct bucket
       }
 
