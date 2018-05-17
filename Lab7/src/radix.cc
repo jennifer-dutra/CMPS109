@@ -162,33 +162,46 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
       exit(-1);
     }
 
-    std::vector<unsigned int> currList = lists[0].get();  // get first list
-    int listSize = lists[0].get().size();                 // get first list
+    // send each list to the server for sorting
+    for(unsigned int i = 0; i < lists.size(); i++) {
 
-    // send all numbers in list
-    unsigned int local;
-    unsigned int onWire;
+      std::vector<unsigned int> currList = lists[i].get();  // copy of current list
+      int listSize = lists[i].get().size();                 // size of current list
 
-    for(int i = 0; i < listSize; i++) {
-      local = currList.at(i);
+      unsigned int local;
+      unsigned int onWire;
+
+      for(int j = 0; j < listSize; j++) {
+        local = currList.at(j);
+        onWire = htonl(local);
+        send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+      }
+
+      // send 0 as list termination flag
+      local = 0;
       onWire = htonl(local);
       send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
-    }
-
-    // send 0
-    local = 0;
-    onWire = htonl(local);
-    send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
 
 
-    for(int i = 0; i < listSize; i++) {
+      // clear original vector
+      lists[i].get().clear();
+
+
+      for(int j = 0; j < listSize; j++) {
+        onWire = 0;
+        recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+        local = ntohl(onWire);
+
+        std::cout << "YOUR NUM: " << local << std::endl;  // TESTING
+
+        lists[i].get().push_back(local);        // add to correct bucket
+      }
+
       onWire = 0;
       recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
       local = ntohl(onWire);
 
-      std::cout << "YOUR NUM: " << local << std::endl;
     }
-
 
     close(sockfd);
 
