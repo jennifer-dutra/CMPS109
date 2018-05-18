@@ -132,6 +132,11 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
       std::vector<std::reference_wrapper<std::vector<unsigned int>>> lists;
       std::vector<unsigned int> current;
 
+      // go through all lists
+      // for(;;) {
+      //
+      // }
+
       // get all numbers for a particular list
       for(;;) {
         onWire = 0;
@@ -143,29 +148,26 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
         if(local == 0) {
           break;
         }
-
         current.push_back(local);
       }
 
       lists.push_back(std::ref(current));
 
-
       // sort list
       ParallelRadixSort serverSort;
       serverSort.msd(lists, cores);
 
-      for(unsigned int i = 0; i < lists[0].get().size(); i++) {
-        std::cout << lists[0].get().at(i) << std::endl;
-      }
+      // TESTING
+      // for(unsigned int i = 0; i < lists[0].get().size(); i++) {
+      //   std::cout << lists[0].get().at(i) << std::endl;
+      // }
 
       // send all numbers from first list
       for(unsigned int i = 0; i < lists[0].get().size(); i++) {
         local = lists[0].get().at(i);
-        // std::cout << "we got this far lol" << std::endl;
         onWire = htonl(local);
         int n = send(newsockfd, (void*)&onWire, sizeof(unsigned int), 0);
         if(n < 0) exit(-1);
-        // std::cout << n << std::endl;
       }
 
       // send 0
@@ -216,26 +218,18 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
       onWire = htonl(local);
       send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
 
-
       // clear original vector
       lists[i].get().clear();
-
 
       for(int j = 0; j < listSize; j++) {
         onWire = 0;
         recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
         local = ntohl(onWire);
-
-        // std::cout << "YOUR NUM: " << local << std::endl;  // TESTING
         lists[i].get().push_back(local);        // add to correct bucket
       }
-
       onWire = 0;
       recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
       local = ntohl(onWire);
-
     }
-
     close(sockfd);
-
 }
