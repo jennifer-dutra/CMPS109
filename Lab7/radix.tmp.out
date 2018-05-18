@@ -1,0 +1,7 @@
+Numbers: 100,000 Lists: 1 Cores: 20
+Generating 100,000 random numbers... 
+Generating expected results... 
+Generate time: 0.422538 seconds
+CruzID: |÷z™_’/
+Running INTERNAL RadixServer on port 5001 with 20 cores
+Running STUDENT  RadixClient

@@ -1,55 +1,64 @@
 Numbers: 100,000 Lists: 1 Cores: 4
 Generating 100,000 random numbers... 
 Generating expected results... 
-Generate time: 0.605645 seconds
-CruzID: dûLI’/
+Generate time: 0.418685 seconds
+CruzID: ô`½Y’/
 Running INTERNAL RadixServer on port 5001 with 4 cores
 Running STUDENT  RadixClient
-Elapsed time: 3.591691 seconds
+Elapsed time: 5.060514 seconds
 Comparing results... 
 List 0 PASS
 Numbers: 100,000 Lists: 1 Cores: 4
 Generating 100,000 random numbers... 
 Generating expected results... 
-Generate time: 0.499875 seconds
-CruzID: HD
+Generate time: 0.505719 seconds
+CruzID: PýS¥Z’/
 Running STUDENT  RadixServer on port 5001 with 4 cores
 Numbers: 100,000 Lists: 1 Cores: 8
 Generating 100,000 random numbers... 
 Generating expected results... 
-Generate time: 0.329719 seconds
-CruzID: €iûIJ’/
+Generate time: 0.446547 seconds
+CruzID: Œa}ÂZ’/
 Running INTERNAL RadixServer on port 5001 with 8 cores
 Running STUDENT  RadixClient
-Elapsed time: 3.676853 seconds
+Elapsed time: 5.247190 seconds
 Comparing results... 
 List 0 PASS
 Numbers: 100,000 Lists: 1 Cores: 8
 Generating 100,000 random numbers... 
 Generating expected results... 
-Generate time: 0.414366 seconds
-CruzID: <“MzK’/
+Generate time: 0.516961 seconds
+CruzID: ´~ÊV\’/
 Running STUDENT  RadixServer on port 5001 with 8 cores
 Numbers: 100,000 Lists: 1 Cores: 12
 Generating 100,000 random numbers... 
 Generating expected results... 
-Generate time: 0.350977 seconds
-CruzID: À¯‘K’/
+Generate time: 0.452854 seconds
+CruzID: ,æ‹t\’/
 Running INTERNAL RadixServer on port 5001 with 12 cores
 Running STUDENT  RadixClient
-Elapsed time: 3.680713 seconds
+Elapsed time: 4.942023 seconds
 Comparing results... 
 List 0 PASS
 Numbers: 100,000 Lists: 1 Cores: 12
 Generating 100,000 random numbers... 
 Generating expected results... 
-Generate time: 0.415306 seconds
-CruzID: DgiÂL’/
+Generate time: 0.515279 seconds
+CruzID: ôðqö]’/
 Running STUDENT  RadixServer on port 5001 with 12 cores
 Numbers: 100,000 Lists: 1 Cores: 16
 Generating 100,000 random numbers... 
 Generating expected results... 
-Generate time: 0.39201 seconds
-CruzID: ¤eˆÛL’/
+Generate time: 0.459184 seconds
+CruzID: ¬œæ^’/
 Running INTERNAL RadixServer on port 5001 with 16 cores
 Running STUDENT  RadixClient
+Elapsed time: 4.538887 seconds
+Comparing results... 
+List 0 PASS
+Numbers: 100,000 Lists: 1 Cores: 16
+Generating 100,000 random numbers... 
+Generating expected results... 
+Generate time: 0.516777 seconds
+CruzID: ô}_’/
+Running STUDENT  RadixServer on port 5001 with 16 cores
