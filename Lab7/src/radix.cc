@@ -144,20 +144,11 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
           break;
         }
 
-        std::cout << "local: " << local << std::endl;
-
         current.push_back(local);
       }
 
       lists.push_back(std::ref(current));
 
-      for(unsigned int i = 0; i < lists[0].get().size(); i++) {
-        std::cout << lists[0].get().at(i) << std::endl;
-      }
-
-      std::cout << "size: " << lists[0].get().size() << std::endl;
-
-      std::cout << "----------sort-----------" << std::endl;
 
       // sort list
       ParallelRadixSort serverSort;
@@ -167,20 +158,20 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
         std::cout << lists[0].get().at(i) << std::endl;
       }
 
-      std::cout << "size: " << lists[0].get().size() << std::endl;
-
       // send all numbers from first list
-      for(unsigned int i = 0; i < lists[i].get().size(); i++) {
-        local = lists[i].get().at(i);
-        // std::cout << local << std::endl;
+      for(unsigned int i = 0; i < lists[0].get().size(); i++) {
+        local = lists[0].get().at(i);
+        // std::cout << "we got this far lol" << std::endl;
         onWire = htonl(local);
-        send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+        int n = send(newsockfd, (void*)&onWire, sizeof(unsigned int), 0);
+        if(n < 0) exit(-1);
+        // std::cout << n << std::endl;
       }
 
       // send 0
       local = 0;
       onWire = htonl(local);
-      send(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
+      send(newsockfd, (void*)&onWire, sizeof(unsigned int), 0);
 
       close(newsockfd);
     }
