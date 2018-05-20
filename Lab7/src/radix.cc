@@ -122,13 +122,13 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(client_addr);
 
-    bool moreNums = true;
+    bool moreNums = true; // if false the client has disconnected, no more numbers
 
     int newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &len);
     if (newsockfd < 0) exit(-1);
 
+    // for each list
     for(;;) {
-
       unsigned int onWire;
       unsigned int local;
 
@@ -140,6 +140,7 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
         onWire = 0;
         int n = recv(newsockfd, (void*)&onWire, sizeof(unsigned int), 0);
 
+        // exit if recv fails, all numbers received if n is 0
         if(n < 0)
           exit(-1);
         else if(n == 0)
@@ -178,7 +179,7 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
 
       lists[0].get().clear(); // clear list
 
-      if(moreNums == false) break;
+      if(moreNums == false) break;  // all lists sorted and sent back
 
     }
     close(newsockfd);
@@ -212,6 +213,7 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
       unsigned int local;
       unsigned int onWire;
 
+      // send all numbers for the current list
       for(int j = 0; j < listSize; j++) {
         local = currList.at(j);
         onWire = htonl(local);
@@ -226,12 +228,14 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
       // clear original vector
       lists[i].get().clear();
 
+      // recieve all numbers in sorted order
       for(int j = 0; j < listSize; j++) {
         onWire = 0;
         recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
         local = ntohl(onWire);
         lists[i].get().push_back(local);
       }
+      // recieve termination flag 0
       onWire = 0;
       recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
       local = ntohl(onWire);
