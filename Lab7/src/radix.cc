@@ -119,23 +119,20 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
 
     listen(sockfd, 5);
 
-    for(;;) {
-      struct sockaddr_in client_addr;
-      socklen_t len = sizeof(client_addr);
 
-      int newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &len);
-      if (newsockfd < 0) exit(-1);
+    struct sockaddr_in client_addr;
+    socklen_t len = sizeof(client_addr);
+
+    int newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &len);
+    if (newsockfd < 0) exit(-1);
+
+    for(;;) {
 
       unsigned int onWire;
       unsigned int local;
 
       std::vector<std::reference_wrapper<std::vector<unsigned int>>> lists;
       std::vector<unsigned int> current;
-
-      // go through all lists
-      // for(;;) {
-      //
-      // }
 
       // get all numbers for a particular list
       for(;;) {
@@ -157,14 +154,12 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
       ParallelRadixSort serverSort;
       serverSort.msd(lists, cores);
 
-      // TESTING
-      // for(unsigned int i = 0; i < lists[0].get().size(); i++) {
-      //   std::cout << lists[0].get().at(i) << std::endl;
-      // }
-
       // send all numbers from first list
       for(unsigned int i = 0; i < lists[0].get().size(); i++) {
         local = lists[0].get().at(i);
+
+        // std::cout << local << std::endl;
+
         onWire = htonl(local);
         int n = send(newsockfd, (void*)&onWire, sizeof(unsigned int), 0);
         if(n < 0) exit(-1);
@@ -175,8 +170,10 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
       onWire = htonl(local);
       send(newsockfd, (void*)&onWire, sizeof(unsigned int), 0);
 
-      close(newsockfd);
+      lists[0].get().clear(); // clear list 
+
     }
+    close(newsockfd);
     close(sockfd);
 }
 
@@ -225,7 +222,7 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
         onWire = 0;
         recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
         local = ntohl(onWire);
-        lists[i].get().push_back(local);        // add to correct bucket
+        lists[i].get().push_back(local);
       }
       onWire = 0;
       recv(sockfd, (void*)&onWire, sizeof(unsigned int), 0);
