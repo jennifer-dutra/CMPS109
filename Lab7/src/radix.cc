@@ -119,9 +119,10 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
 
     listen(sockfd, 5);
 
-
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(client_addr);
+
+    bool moreNums = true;
 
     int newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &len);
     if (newsockfd < 0) exit(-1);
@@ -138,7 +139,12 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
       for(;;) {
         onWire = 0;
         int n = recv(newsockfd, (void*)&onWire, sizeof(unsigned int), 0);
-        if(n < 0) exit(-1);
+
+        if(n < 0)
+          exit(-1);
+        else if(n == 0)
+          moreNums = false;
+
         local = ntohl(onWire);
 
         // termination flag
@@ -170,7 +176,9 @@ RadixServer::RadixServer(const int port, const unsigned int cores) {
       onWire = htonl(local);
       send(newsockfd, (void*)&onWire, sizeof(unsigned int), 0);
 
-      lists[0].get().clear(); // clear list 
+      lists[0].get().clear(); // clear list
+
+      if(moreNums == false) break;
 
     }
     close(newsockfd);
