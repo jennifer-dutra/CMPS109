@@ -7,6 +7,16 @@
 
 #include "radix.h"
 
+
+/*
+ * Radix sort code based off of java implementation at:
+ * http://www.codebytes.in/2015/12/msd-string-sort-java.html
+ * Converted to C++ implementation.
+ *
+ * Conversion help from webcast:
+ * https://opencast-player-1.lt.ucsc.edu:8443/engage/theodul/ui/core.html?id=bdacac7d-79ee-4ed5-a25b-6f1f3af9cb27
+ */
+
 // global variable for sorting
 static int R = 2<<8;
 
@@ -101,6 +111,14 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
    }
   }
 }
+
+
+/*
+ * Referenced in class server/client examples:
+ * https://opencast-player-1.lt.ucsc.edu:8443/engage/theodul/ui/core.html?id=0a06d645-4145-445c-9cae-dfdb9c770e52
+ * https://opencast-player-1.lt.ucsc.edu:8443/engage/theodul/ui/core.html?id=e8d75c88-e18b-45fc-b5b8-ddae7fcc3093
+ *
+ */
 
 RadixServer::RadixServer(const int port, const unsigned int cores) {
 
