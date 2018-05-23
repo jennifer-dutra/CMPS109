@@ -1,4 +1,0 @@
-src/radix.cc: In member function ‘void RadixServer::start(int, unsigned int)’:
-src/radix.cc:16:9: warning: unused variable ‘ununsed’ [-Wunused-variable]
-     int ununsed; // to fail compilke warning test, remove
-         ^

@@ -1,12 +1,20 @@
 /*
  * Copyright (C) 2018 David C. Harrison. All right reserved.
  *
- * You may not use, distribute, publish, or modify this code without 
+ * You may not use, distribute, publish, or modify this code without
  * the express written permission of the copyright holder.
  */
 
 #include <vector>
 #include <functional>
+#include <string.h>
+#include <unistd.h>
+
+#include <sys/socket.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+
 
 #define MAX_VALUES 128
 
@@ -16,7 +24,7 @@
                   // If set, VALUES contains the sequence numbers of missing batches
 
 /*
- * On-wire datagram. 
+ * On-wire datagram.
  *
  * All elements should be converted to network byte-order before transmission
  * and converted back to host byte-order on recepit.
