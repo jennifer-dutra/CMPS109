@@ -7,6 +7,111 @@
 
 #include "radix.h"
 
+
+/*
+ * Radix sort code based off of java implementation at:
+ * http://www.codebytes.in/2015/12/msd-string-sort-java.html
+ * Converted to C++ implementation.
+ *
+ * Conversion help from webcast:
+ * https://opencast-player-1.lt.ucsc.edu:8443/engage/theodul/ui/core.html?id=bdacac7d-79ee-4ed5-a25b-6f1f3af9cb27
+ */
+
+// global variable for sorting
+static int R = 2<<8;
+
+static int charAt(std::string s, int i) {
+   if((unsigned int)i < s.length())
+     return s.at(i);
+   else return -1;
+}
+
+static void sort(unsigned int s[], unsigned int aux[], int lo, int hi, int at) {
+
+   if(hi <= lo)
+     return;
+
+   int count[R+2];
+
+   for(int i = 0; i < R + 2; i++)
+     count[i] = 0;
+
+   for(int i = lo; i <= hi; ++i)
+     count[charAt(std::to_string(s[i]), at)+2]++;
+
+   for(int i = 0; i < R+1; ++i)
+     count[i+1] += count[i];
+
+   for(int i = lo; i <= hi; ++i)
+     aux[count[charAt(std::to_string(s[i]), at)+1]++] = s[i];
+
+   for(int i = lo; i <= hi; ++i)
+     s[i] = aux[i-lo];
+
+   for(int r = 0; r < R; ++r)
+     sort(s, aux, lo+count[r], lo+count[r+1]-1, at+1);
+}
+
+static void sortArray(std::vector<unsigned int> &vec, int len) {
+   unsigned int* s = &vec[0];
+   unsigned int aux[len];
+   int lo = 0;
+   int hi = len - 1;
+   int at = 0;
+   sort(s, aux, lo, hi, at);
+}
+
+void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, const unsigned int cores) {
+  // note -- changing implementation to more efficient one later
+  // this implementation has no errors but only 350% speed up
+
+  std::array<std::vector<unsigned int>, 10> buckets;    // create array of 10 buckets
+
+
+  for(unsigned int i = 0; i < lists.size(); i++) {
+
+   std::thread threads[buckets.size()];                  // create array of threads
+   unsigned int currThreads = 0;                         // current number of threads running
+   unsigned int totalThreads = 0;                        // total threads used
+
+   std::vector<unsigned int> currList = lists[i].get();  // copy of current list
+   int listSize = lists[i].get().size();                 // size of current list
+
+   // put integers in bucket based on first digit
+   // ex. 1000 goes in bucket 1, 2000 goes in bucket 2
+   for(int j = 0; j < listSize; j++) {
+     int firstDigit = charAt(std::to_string(currList[j]), 0) - 48;  // get first digit
+     (buckets.at(firstDigit)).push_back(currList[j]);               // add to correct bucket
+   }
+
+   // sort each bucket
+   for(unsigned int j = 1; j < buckets.size(); j++) {
+     threads[currThreads] = (std::thread(sortArray, std::ref(buckets.at(j)), buckets.at(j).size()));
+     currThreads++;
+     totalThreads++;
+
+     if(currThreads == cores || totalThreads ==  buckets.size() - 1) {
+       for(unsigned int k = 0; k < currThreads; k++) {
+         threads[k].join();
+       }
+       currThreads = 0;
+     }
+   }
+
+   // clear original vector
+   lists[i].get().clear();
+
+
+   // merge sorted vectors
+   for(unsigned int k = 0; k < buckets.size(); k++) {
+     for(unsigned int j = 0; j < buckets.at(k).size(); j++) {
+       lists[i].get().push_back(buckets.at(k).at(j));
+     }
+     buckets.at(k).clear();
+   }
+  }
+}
+
 /*
  * Referenced class notes for datagram socket server & client:
  * https://classes.soe.ucsc.edu/cmps109/Spring18/SECURE/13.Distributed3.pdf
@@ -64,11 +169,46 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
   bcopy((char *)server->h_addr, (char *)&remote_addr.sin_addr.s_addr, server->h_length);
   remote_addr.sin_port = htons(port);
 
-  // int n = sendto(sockfd, argv[3], strlen(argv[3]), 0, (struct sockaddr *)&remote_addr, len);
-  // if (n < 0) exit(-1);
-  //
-  // n = recvfrom(sockfd, buffer, 255, 0, (struct sockaddr *)&remote_addr, len);
-  // if (n < 0) exit(-1);
+  socklen_t len = sizeof(remote_addr);
+
+  // send each list to the server for sorting
+  for(unsigned int i = 0; i < lists.size(); i++) {
+
+    std::vector<unsigned int> currList = lists[i].get();  // copy of current list
+    int listSize = lists[i].get().size();                 // size of current list
+
+    std::cout << listSize << '\n';
+
+    Message msg;
+    msg.num_values = 0;
+    msg.sequence = 0;
+
+    // send all numbers for the current list
+    for(int j = 0; j < listSize; j++) {
+      msg.values[msg.num_values++] = htonl(currList.at(j));
+    }
+    msg.num_values = htonl(msg.num_values);
+    msg.sequence = htonl(msg.sequence);
+    msg.flag = htonl(LAST);
+    sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+
+
+    // recieve all numbers in sorted order
+    msg.num_values = 0;
+    msg.sequence = 0;
+    msg.flag = htonl(NONE);
+    recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
+    msg.num_values = ntohl(msg.num_values);
+    msg.sequence = ntohl(msg.sequence);
+
+    //clear original vector
+    lists[i].get().clear();
+
+    for(unsigned int j = 0 ; j < currList.size(); j++) {
+      msg.values[j] = ntohl(msg.values[j]);
+      lists[i].get().push_back(msg.values[j]);
+    }
 
   close(sockfd);
+  }
 }

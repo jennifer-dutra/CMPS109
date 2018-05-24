@@ -9,11 +9,13 @@
 #include <functional>
 #include <string.h>
 #include <unistd.h>
+#include <thread>
+#include <iostream>
 
 #include <sys/socket.h>
 #include <sys/socket.h>
 #include <netdb.h>
-
+#include <stdio.h>
 
 
 #define MAX_VALUES 128
@@ -37,6 +39,15 @@ typedef struct message_t {
     unsigned int flag;       // One of NONE, LAST, RESEND
 }
 Message;
+
+class ParallelRadixSort {
+public:
+    /*
+     * Perform an in-place Most Significant Digit Radix Sort on each list of
+     * unsigned integers in LISTS using nore that CORES cpu cores.
+     */
+    void msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, const unsigned int cores);
+};
 
 class RadixServer {
 public:

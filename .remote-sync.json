@@ -4,7 +4,7 @@
   "deleteLocal": false,
   "hostname": "unix.ucsc.edu",
   "port": "22",
-  "target": "/afs/cats.ucsc.edu/users/a/jrdutra/CMPS109/Lab8",
+  "target": "/afs/cats.ucsc.edu/users/a/jrdutra/CMPS109/",
   "ignore": [
     ".remote-sync.json",
     ".git/**"
