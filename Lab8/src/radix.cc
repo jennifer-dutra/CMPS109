@@ -150,21 +150,18 @@ void RadixServer::start(const int port, const unsigned int cores) {
       msg.sequence = 0;
       recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
       msg.sequence = ntohl(msg.sequence);
+      msg.flag = ntohl(msg.flag);
 
       for(unsigned int i = 0; i < ntohl(msg.num_values); i++) {
-        // std::cout << ntohl(msg.values[i]) << '\n';
         current.push_back(ntohl(msg.values[i]));
       }
 
-      lists.push_back(std::ref(current));
-
-      // sort list
-      ParallelRadixSort serverSort;
-      serverSort.msd(lists, cores);
-
-      msg.flag = LAST;
       if(msg.flag == LAST) {
         //sort
+        lists.push_back(std::ref(current));
+        ParallelRadixSort serverSort;
+        serverSort.msd(lists, cores);
+
         msg.num_values = 0;
         msg.sequence = 0;
         msg.flag = NONE;
@@ -181,17 +178,12 @@ void RadixServer::start(const int port, const unsigned int cores) {
             msg.num_values = 0;
           }
         }
-
         msg.num_values = htonl(msg.num_values);
         msg.sequence = htonl(msg.sequence);
         msg.flag = htonl(LAST);
         sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
-
-        current.clear();
       }
-
     }
-
     close(sockfd);
 }
 
