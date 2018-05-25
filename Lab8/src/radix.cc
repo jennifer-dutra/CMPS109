@@ -201,6 +201,9 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
     for(int j = 0; j < listSize; j++) {
       msg.values[msg.num_values++] = htonl(currList.at(j));
       if(msg.num_values == MAX_VALUES) {
+        msg.num_values = htonl(msg.num_values);
+        msg.sequence = htonl(msg.sequence);
+        msg.flag = htonl(NONE);
         sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
         msg.sequence++;
         msg.num_values = 0;
@@ -215,14 +218,11 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
     lists[i].get().clear();
 
     // recieve all numbers in sorted order
-    // msg.num_values = 0;
-    // msg.sequence = 0;
-    // msg.flag = htonl(LAST);
     do {
       recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
-      msg.num_values = ntohl(msg.num_values);
       msg.sequence = ntohl(msg.sequence);
-      for(unsigned int j = 0 ; j < currList.size(); j++) {
+      msg.flag = ntohl(msg.flag);
+      for(unsigned int j = 0 ; j < ntohl(msg.num_values); j++) {
         msg.values[j] = ntohl(msg.values[j]);
         lists[i].get().push_back(msg.values[j]);
       }
