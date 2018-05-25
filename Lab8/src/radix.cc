@@ -125,44 +125,81 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
  */
 void RadixServer::start(const int port, const unsigned int cores) {
 
-    // int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    // if (sockfd < 0) exit(-1);
-    //
-    // struct sockaddr_in server_addr;
-    // bzero((char *) &server_addr, sizeof(server_addr));
-    // server_addr.sin_family = AF_INET;
-    // server_addr.sin_addr.s_addr = INADDR_ANY;
-    // server_addr.sin_port = htons(port);
-    //
-    // if(bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
-    //   exit(-1);
-    //
-    // struct sockaddr_in remote_addr;
-    // socklen_t len = sizeof(remote_addr);
-    //
-    // Message msg;
-    // //
-    // // for(;;) {
-    //   // recieve all numbers in sorted order
-    //
-    //   std::cout << "receive loop" << '\n';
-    //
-    //   msg.num_values = 0;
-    //   msg.sequence = 0;
-    //   msg.flag = htonl(LAST);
-    //   recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
-    //   msg.num_values = ntohl(msg.num_values);
-    //   msg.sequence = ntohl(msg.sequence);
-    // // }
-    //
-    // close(sockfd);
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) exit(-1);
+
+    struct sockaddr_in server_addr;
+    bzero((char *) &server_addr, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(port);
+
+    if(bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+      exit(-1);
+
+    struct sockaddr_in remote_addr;
+    socklen_t len = sizeof(remote_addr);
+
+    Message msg;
+
+    std::vector<std::reference_wrapper<std::vector<unsigned int>>> lists;
+    std::vector<unsigned int> current;
+
+    while(true) {
+      msg.num_values = 0;
+      msg.sequence = 0;
+      recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
+      msg.sequence = ntohl(msg.sequence);
+
+      for(unsigned int i = 0; i < ntohl(msg.num_values); i++) {
+        // std::cout << ntohl(msg.values[i]) << '\n';
+        current.push_back(ntohl(msg.values[i]));
+      }
+
+      lists.push_back(std::ref(current));
+
+      // sort list
+      ParallelRadixSort serverSort;
+      serverSort.msd(lists, cores);
+
+      msg.flag = LAST;
+      if(msg.flag == LAST) {
+        //sort
+        msg.num_values = 0;
+        msg.sequence = 0;
+        msg.flag = NONE;
+
+        for(unsigned int j = 0; j < lists[0].get().size(); j++) {
+          msg.values[msg.num_values++] = htonl(lists[0].get().at(j));
+
+          if(msg.num_values == MAX_VALUES) {
+            msg.num_values = htonl(msg.num_values);
+            msg.sequence = htonl(msg.sequence);
+            msg.flag = htonl(NONE);
+            sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+            msg.sequence++;
+            msg.num_values = 0;
+          }
+        }
+
+        msg.num_values = htonl(msg.num_values);
+        msg.sequence = htonl(msg.sequence);
+        msg.flag = htonl(LAST);
+        sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+
+        current.clear();
+      }
+
+    }
+
+    close(sockfd);
 }
 
 /*
  * Shutdown the server. Typically this will involve closing the server socket.
  */
 void RadixServer::stop() {
-    throw "not implemented";
+
 }
 
 /*
