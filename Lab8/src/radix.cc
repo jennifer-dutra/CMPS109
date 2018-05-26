@@ -146,19 +146,48 @@ void RadixServer::start(const int port, const unsigned int cores) {
 
     msg.num_values = 0;
     msg.sequence = 0;
+    unsigned int packet = 0;
+    std::vector<unsigned int> missing;
+    bool resend = false;
 
     while(true) {
+
+      std::cout << "packet: " << packet << '\n';
 
       recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
       msg.num_values = ntohl(msg.num_values);
       msg.sequence = ntohl(msg.sequence);
       msg.flag = ntohl(msg.flag);
 
+      // check for missing packets and add to vector
+      if(packet != msg.sequence && resend == false) {
+        missing.push_back(packet);
+        packet++;
+      }
+      packet++;
+
       for(unsigned int i = 0; i < msg.num_values; i++) {
         current.push_back(ntohl(msg.values[i]));
       }
 
       if(msg.flag == LAST) {
+
+        if(missing.size() > 0 && resend == false) {
+          // get missing packets
+          resend = true;
+          msg.num_values = 0;
+          for(unsigned int &missingNum : missing) {
+            msg.values[msg.num_values++] = missing[missingNum];
+          }
+
+          // send missing packet numbers
+          msg.num_values = htonl(msg.num_values);
+          msg.sequence = htonl(msg.sequence);
+          msg.flag = htonl(RESEND);
+          sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+          continue;
+        }
+
         //sort
         lists.push_back(std::ref(current));
         ParallelRadixSort serverSort;
@@ -167,6 +196,7 @@ void RadixServer::start(const int port, const unsigned int cores) {
         msg.num_values = 0;
         msg.sequence = 0;
         msg.flag = NONE;
+
 
         for(unsigned int j = 0; j < lists[0].get().size(); j++) {
           msg.values[msg.num_values++] = htonl(lists[0].get().at(j));
