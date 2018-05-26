@@ -141,18 +141,20 @@ void RadixServer::start(const int port, const unsigned int cores) {
     socklen_t len = sizeof(remote_addr);
 
     Message msg;
-
     std::vector<std::reference_wrapper<std::vector<unsigned int>>> lists;
     std::vector<unsigned int> current;
 
+    msg.num_values = 0;
+    msg.sequence = 0;
+
     while(true) {
-      msg.num_values = 0;
-      msg.sequence = 0;
+
       recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
+      msg.num_values = ntohl(msg.num_values);
       msg.sequence = ntohl(msg.sequence);
       msg.flag = ntohl(msg.flag);
 
-      for(unsigned int i = 0; i < ntohl(msg.num_values); i++) {
+      for(unsigned int i = 0; i < msg.num_values; i++) {
         current.push_back(ntohl(msg.values[i]));
       }
 
@@ -174,6 +176,7 @@ void RadixServer::start(const int port, const unsigned int cores) {
             msg.sequence = htonl(msg.sequence);
             msg.flag = htonl(NONE);
             sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+            msg.sequence = ntohl(msg.sequence);
             msg.sequence++;
             msg.num_values = 0;
           }
@@ -182,6 +185,7 @@ void RadixServer::start(const int port, const unsigned int cores) {
         msg.sequence = htonl(msg.sequence);
         msg.flag = htonl(LAST);
         sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+        lists[0].get().clear();
       }
     }
     close(sockfd);
@@ -234,14 +238,18 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
         msg.sequence = htonl(msg.sequence);
         msg.flag = htonl(NONE);
         sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+        msg.sequence = ntohl(msg.sequence);
         msg.sequence++;
         msg.num_values = 0;
       }
     }
     msg.num_values = htonl(msg.num_values);
     msg.sequence = htonl(msg.sequence);
+
     msg.flag = htonl(LAST);
     sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+
+    msg.sequence = ntohl(msg.sequence);
 
     //clear original vector
     lists[i].get().clear();
