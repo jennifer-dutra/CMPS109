@@ -236,7 +236,8 @@ void RadixServer::stop() {
  * Send list from client to the server
  */
 
-void sender(Message msg, std::vector<unsigned int> &currList, int listSize, socklen_t len, int sockfd, struct sockaddr_in remote_addr) {
+void sender(Message msg, std::vector<unsigned int> &currList, int listSize, socklen_t len, int sockfd,
+   struct sockaddr_in remote_addr, std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, unsigned int i, bool resendAll) {
 
   msg.num_values = 0;
   msg.sequence = 0;
@@ -260,8 +261,43 @@ void sender(Message msg, std::vector<unsigned int> &currList, int listSize, sock
 
   msg.flag = htonl(LAST);
   sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
-
   msg.sequence = ntohl(msg.sequence);
+
+  //clear original vector
+  lists[i].get().clear();
+
+  for(uint k = 0; k < lists[i].get().size(); k++) {
+    std::cout << lists[i].get().at(k) << '\n';
+  }
+
+  uint packets = 0;
+
+  // recieve all numbers in sorted order
+  do {
+    recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
+    msg.sequence = ntohl(msg.sequence);
+    msg.flag = ntohl(msg.flag);
+
+    if(resendAll == true)
+      std::cout << "seq: " << msg.sequence << '\n';
+
+    if(packets != msg.sequence && resendAll == false && msg.flag == LAST) {
+      resendAll = true;
+      std::cout << "entered here" << '\n';
+      sender(msg, currList, listSize, len, sockfd, remote_addr, lists, i, resendAll);
+    }
+    packets++;
+
+    for(unsigned int j = 0 ; j < ntohl(msg.num_values); j++) {
+      msg.values[j] = ntohl(msg.values[j]);
+      lists[i].get().push_back(msg.values[j]);
+    }
+
+  } while(msg.flag == NONE);
+
+  // for(uint k = 0; k < lists[i].get().size(); k++) {
+  //   std::cout << lists[i].get().at(k) << '\n';
+  // }
 
 }
 
@@ -294,35 +330,12 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
     std::vector<unsigned int> currList = lists[i].get();  // copy of current list
     int listSize = lists[i].get().size();                 // size of current list
 
-    // send list to server
-    sender(msg, currList, listSize, len, sockfd, remote_addr);
-
-    //clear original vector
-    lists[i].get().clear();
-
-    uint packets = 0;
     bool resendAll = false;
 
-    // recieve all numbers in sorted order
-    do {
-      recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
-      msg.sequence = ntohl(msg.sequence);
-      msg.flag = ntohl(msg.flag);
+    // send list to server
+    sender(msg, currList, listSize, len, sockfd, remote_addr, lists, i, resendAll);
 
-      if(packets != msg.sequence && resendAll == false) {
-        sender(msg, currList, listSize, len, sockfd, remote_addr);
-        resendAll = true;
-        continue;
-      }
-      packets++;
 
-      for(unsigned int j = 0 ; j < ntohl(msg.num_values); j++) {
-        msg.values[j] = ntohl(msg.values[j]);
-        lists[i].get().push_back(msg.values[j]);
-
-        std::cout << msg.values[j] << '\n';
-      }
-    } while(msg.flag == NONE);
   }
   close(sockfd);
 }
