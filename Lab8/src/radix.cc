@@ -233,6 +233,40 @@ void RadixServer::stop() {
 }
 
 /*
+ * Send list from client to the server
+ */
+
+void sender(Message msg, std::vector<unsigned int> &currList, int listSize, socklen_t len, int sockfd, struct sockaddr_in remote_addr) {
+
+  msg.num_values = 0;
+  msg.sequence = 0;
+  msg.flag = NONE;
+
+  // send all numbers for the current list
+  for(int j = 0; j < listSize; j++) {
+    msg.values[msg.num_values++] = htonl(currList.at(j));
+    if(msg.num_values == MAX_VALUES) {
+      msg.num_values = htonl(msg.num_values);
+      msg.sequence = htonl(msg.sequence);
+      msg.flag = htonl(NONE);
+      sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+      msg.sequence = ntohl(msg.sequence);
+      msg.sequence++;
+      msg.num_values = 0;
+    }
+  }
+  msg.num_values = htonl(msg.num_values);
+  msg.sequence = htonl(msg.sequence);
+
+  msg.flag = htonl(LAST);
+  sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
+
+  msg.sequence = ntohl(msg.sequence);
+
+}
+
+
+/*
  * Send the contents of the lists contained with LISTS to the server on HIOSTNAME
  * listening on PORT in datagrams containing batches of unsigned integers. These
  * will be returned to you MSD Radix sorted and should be retied to the caller
@@ -260,42 +294,33 @@ void RadixClient::msd(const char *hostname, const int port, std::vector<std::ref
     std::vector<unsigned int> currList = lists[i].get();  // copy of current list
     int listSize = lists[i].get().size();                 // size of current list
 
-    msg.num_values = 0;
-    msg.sequence = 0;
-    msg.flag = NONE;
-
-    // send all numbers for the current list
-    for(int j = 0; j < listSize; j++) {
-      msg.values[msg.num_values++] = htonl(currList.at(j));
-      if(msg.num_values == MAX_VALUES) {
-        msg.num_values = htonl(msg.num_values);
-        msg.sequence = htonl(msg.sequence);
-        msg.flag = htonl(NONE);
-        sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
-        msg.sequence = ntohl(msg.sequence);
-        msg.sequence++;
-        msg.num_values = 0;
-      }
-    }
-    msg.num_values = htonl(msg.num_values);
-    msg.sequence = htonl(msg.sequence);
-
-    msg.flag = htonl(LAST);
-    sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
-
-    msg.sequence = ntohl(msg.sequence);
+    // send list to server
+    sender(msg, currList, listSize, len, sockfd, remote_addr);
 
     //clear original vector
     lists[i].get().clear();
+
+    uint packets = 0;
+    bool resendAll = false;
 
     // recieve all numbers in sorted order
     do {
       recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
       msg.sequence = ntohl(msg.sequence);
       msg.flag = ntohl(msg.flag);
+
+      if(packets != msg.sequence && resendAll == false) {
+        sender(msg, currList, listSize, len, sockfd, remote_addr);
+        resendAll = true;
+        continue;
+      }
+      packets++;
+
       for(unsigned int j = 0 ; j < ntohl(msg.num_values); j++) {
         msg.values[j] = ntohl(msg.values[j]);
         lists[i].get().push_back(msg.values[j]);
+
+        std::cout << msg.values[j] << '\n';
       }
     } while(msg.flag == NONE);
   }

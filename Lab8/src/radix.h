@@ -49,6 +49,8 @@ public:
     void msd(std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, const unsigned int cores);
 };
 
+void sender(Message msg, std::vector<unsigned int> &currList, int listSize, socklen_t len, int sockfd, struct sockaddr_in remote_addr);
+
 class RadixServer {
 public:
     void start(const int port, const unsigned int cores);
@@ -58,4 +60,5 @@ public:
 class RadixClient {
 public:
     void msd(const char *hostname, const int port, std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists);
+
 };
