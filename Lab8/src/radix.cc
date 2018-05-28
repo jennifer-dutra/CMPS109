@@ -274,29 +274,33 @@ void msdHelper(Message msg, std::vector<unsigned int> &currList, int listSize, s
     FD_SET(sockfd, &readfds);
     tv.tv_sec = 2;
     int rc = select(sockfd + 1, &readfds, 0, 0, &tv);
-      std::cout << rc << '\n';
+
     if(rc == 0) {
       std::cout << "TIMEOUT" << '\n';
       break;
     }
+    else {
+      recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
+      msg.sequence = ntohl(msg.sequence);
+      msg.flag = ntohl(msg.flag);
 
+      std::cout << "recv seq: " << msg.sequence << '\n';
+      std::cout << "recv flag: " << msg.flag << '\n';
 
-    recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
-    msg.sequence = ntohl(msg.sequence);
-    msg.flag = ntohl(msg.flag);
+      // if we have recieved last packet and something is missing, resend all
+      if(packets != msg.sequence && resendAll == false && msg.flag == LAST) {
+        resendAll = true; // set flag so only one recursive call possible
+        msdHelper(msg, currList, listSize, len, sockfd, remote_addr, lists, i, resendAll,
+        readfds, tv);
+      }
+      packets++;
 
-    // if we have recieved last packet and something is missing, resend all
-    if(packets != msg.sequence && resendAll == false && msg.flag == LAST) {
-      resendAll = true; // set flag so only one recursive call possible
-      msdHelper(msg, currList, listSize, len, sockfd, remote_addr, lists, i, resendAll,
-      readfds, tv);
-    }
-    packets++;
-
-    // add sorted numbers to original list
-    for(unsigned int j = 0 ; j < ntohl(msg.num_values); j++) {
-      msg.values[j] = ntohl(msg.values[j]);
-      lists[i].get().push_back(msg.values[j]);
+      // add sorted numbers to original list
+      for(unsigned int j = 0 ; j < ntohl(msg.num_values); j++) {
+        msg.values[j] = ntohl(msg.values[j]);
+        lists[i].get().push_back(msg.values[j]);
+        // std::cout << msg.values[j] << std::endl;
+      }
     }
 
   } while(msg.flag == NONE);
