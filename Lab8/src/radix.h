@@ -50,7 +50,8 @@ public:
 };
 
 // Sending and receiving for client
-void msdHelper(Message msg, std::vector<unsigned int> &currList, int listSize, socklen_t len, int sockfd, struct sockaddr_in remote_addr, std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists, unsigned int i, bool resendAll);
+void msdHelper(Message msg, std::vector<unsigned int> &currList, int listSize, socklen_t len, int sockfd, struct sockaddr_in remote_addr, std::vector<std::reference_wrapper<std::vector<unsigned int>>> &lists,
+  unsigned int i, bool resendAll, fd_set readfds, struct timeval tv);
 
 class RadixServer {
 public:
