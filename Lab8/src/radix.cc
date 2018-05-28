@@ -15,6 +15,8 @@
  *
  * Conversion help from webcast:
  * https://opencast-player-1.lt.ucsc.edu:8443/engage/theodul/ui/core.html?id=bdacac7d-79ee-4ed5-a25b-6f1f3af9cb27
+ *
+ * Discussed strategy with classmate Aaron Rodden.
  */
 
 // global variable for sorting
@@ -66,7 +68,6 @@ void ParallelRadixSort::msd(std::vector<std::reference_wrapper<std::vector<unsig
   // this implementation has no errors but only 350% speed up
 
   std::array<std::vector<unsigned int>, 10> buckets;    // create array of 10 buckets
-
 
   for(unsigned int i = 0; i < lists.size(); i++) {
 
@@ -146,9 +147,9 @@ void RadixServer::start(const int port, const unsigned int cores) {
     msg.num_values = 0;
     msg.sequence = 0;
 
-    unsigned int packet = 0;
-    std::vector<unsigned int> missing;
-    bool allReceived = false;
+    unsigned int packet = 0;            // compare to sequence # to check for missing packets
+    std::vector<unsigned int> missing;  // missing packet sequence #s stored here
+    bool allReceived = false;           // all packets received
 
     while(true) {
       recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
@@ -156,12 +157,9 @@ void RadixServer::start(const int port, const unsigned int cores) {
       msg.sequence = ntohl(msg.sequence);
       msg.flag = ntohl(msg.flag);
 
-      // std::cout << "packet: " << packet << "msg seq: " << msg.sequence << std::endl;
-
       // check for missing packets and add to vector
       if(packet != msg.sequence && allReceived == false) {
         missing.push_back(packet);
-        // std::cout << "push back: " << packet << std::endl;
         packet++;
       }
       packet++;
@@ -200,6 +198,7 @@ void RadixServer::start(const int port, const unsigned int cores) {
         msg.sequence = 0;
         msg.flag = NONE;
 
+        // send sorted packets 
         for(unsigned int j = 0; j < lists[0].get().size(); j++) {
           msg.values[msg.num_values++] = htonl(lists[0].get().at(j));
 
@@ -270,7 +269,6 @@ void msdHelper(Message msg, std::vector<unsigned int> &currList, int listSize, s
 
   // recieve all numbers in sorted order
   do {
-
     FD_SET(sockfd, &readfds);
     tv.tv_sec = 2;
     int rc = select(sockfd + 1, &readfds, 0, 0, &tv);
@@ -284,11 +282,9 @@ void msdHelper(Message msg, std::vector<unsigned int> &currList, int listSize, s
       msg.sequence = ntohl(msg.sequence);
       msg.flag = ntohl(msg.flag);
 
-      std::cout << "recv seq: " << msg.sequence << '\n';
-      std::cout << "recv flag: " << msg.flag << '\n';
-
       // if we have recieved last packet and something is missing, resend all
       if(packets != msg.sequence && resendAll == false && msg.flag == LAST) {
+        std::cout << "RESEND" << '\n';
         resendAll = true; // set flag so only one recursive call possible
         msdHelper(msg, currList, listSize, len, sockfd, remote_addr, lists, i, resendAll,
         readfds, tv);
@@ -302,7 +298,6 @@ void msdHelper(Message msg, std::vector<unsigned int> &currList, int listSize, s
         // std::cout << msg.values[j] << std::endl;
       }
     }
-
   } while(msg.flag == NONE);
 }
 
