@@ -3,35 +3,30 @@
 
 
 void CrackServer::start() {
-  // int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-  // if (sockfd < 0) exit(-1);
-  //
-  // struct sockaddr_in server_addr;
-  // bzero((char *) &server_addr, sizeof(server_addr));
-  // server_addr.sin_family = AF_INET;
-  // server_addr.sin_addr.s_addr = INADDR_ANY;
-  // server_addr.sin_port = htons(get_port());
-  //
-  // if(bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
-  //   exit(-1);
-  //
-  // struct sockaddr_in remote_addr;
-  // socklen_t len = sizeof(remote_addr);
-  //
-  // Message msg;
+  int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0) exit(-1);
 
-  // msg.cruzid = "jrdutra";
-  // msg.passwds[0][HASH_LENGTH + 1] = "xxo0q4QVK0mOg";
-  // msg.num_passwd = 1;
-  // msg.hostname;
-  // msg.port = port;
+  struct sockaddr_in server_addr;
+  bzero((char *) &server_addr, sizeof(server_addr));
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_addr.s_addr = INADDR_ANY;
+  server_addr.sin_port = htons(port);
 
-  // std::string cruzid = "jrdutra";
-  // std::password pass = "xxo0q4QVK0mOg";
+  if(bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+    exit(-1);
 
-  // for(int i = 0; i < ) {
+  struct sockaddr_in remote_addr;
+  socklen_t len = sizeof(remote_addr);
 
-  // }
+  Message msg;
+
+  recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
+  msg.num_passwds = ntohl(msg.num_passwds);
+  msg.port = ntohl(msg.port);
+
+  std::cout << msg.num_passwds << std::endl;
+
+  close(sockfd);
 
 }
 
@@ -53,7 +48,6 @@ void sendUDP(Message msg, std::string cruzid, std::string hash, int num_passwds,
   for(uint i = 0; i < hostname.length(); i++) {
     msg.hostname[i] = hostname.at(i);
   }
-
 
   msg.num_passwds = htonl(num_passwds);
   msg.port = htonl(port);
