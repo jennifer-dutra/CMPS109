@@ -66,7 +66,8 @@ unsigned int get_unicast_port();
 /*
  * Send UDP message
  */
-void sendUDP(Message msg, std::string cruzid, std::string hash, int num_passwds, std::string hostname, int port);
+void sendUDP(Message msg, std::string cruzid, std::string hash, int num_passwds, std::string hostname, int port,
+  socklen_t len, int sockfd, struct sockaddr_in remote_addr);
 
 class CrackServer {
 public:
