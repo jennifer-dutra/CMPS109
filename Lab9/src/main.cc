@@ -1,9 +1,20 @@
 
 #include "crack.h"
 
+// crack passwords
+void crackPass(Message msg) {
+  for(uint i = 0; i < msg.num_passwds; i++) {
+    char plain[5];
+    crack(msg.passwds[i], plain);                       // crack password
+    memset(msg.passwds[i], 0, sizeof(msg.passwds[i]));  // clear original array
+    strcpy(msg.passwds[i], plain);                      // add decrypted pass
+    std::cout << plain  << std::endl;
+  }
+}
+
 
 // cracker
-void CrackClient::crack() {
+void CrackClient::cracker() {
 
   int port = get_multicast_port();
 
@@ -22,17 +33,6 @@ void CrackClient::crack() {
   struct sockaddr_in remote_addr;
   socklen_t len = sizeof(remote_addr);
 
-  // struct hostent *server = gethostbyname("localhost");
-  // if (server == NULL) exit(-1);
-  //
-  // struct sockaddr_in remote_addr;
-  // bzero((char *) &remote_addr, sizeof(remote_addr));
-  // remote_addr.sin_family = AF_INET;
-  // bcopy((char *)server->h_addr, (char *)&remote_addr.sin_addr.s_addr, server->h_length);
-  // remote_addr.sin_port = htons(port);
-
-  // socklen_t len = sizeof(remote_addr);
-
   Message msg;
 
   msg.num_passwds = 0;
@@ -40,21 +40,27 @@ void CrackClient::crack() {
 
   recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
   msg.num_passwds = ntohl(msg.num_passwds);
-  msg.port = ntohl(msg.port);
 
+  // PRINT TESTING 
   std::cout << msg.cruzid << std::endl;
+  std::cout << msg.num_passwds << std::endl;
+  std::cout << msg.hostname << std::endl;
+
+  crackPass(msg);
+
+  msg.num_passwds = htonl(msg.num_passwds);
+
+
+  // get unicast Port
+  // send cracked passwords back in package
 
   close(sockfd);
 }
 
 
-
 int main() {
-  // char plain[8];
-  // crack("xxo0q4QVK0mOg", plain);
-  // printf("Plain: %s\n", plain);
 
   CrackClient client;
-  client.crack();
+  client.cracker();
 
 }
