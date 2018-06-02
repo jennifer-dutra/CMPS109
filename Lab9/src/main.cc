@@ -10,8 +10,7 @@ void crackPass(Message msg) {
 // cracker
 void CrackClient::cracker() {
 
-  int port = get_multicast_port();
-
+  // receive the UDP packet sent from the server
   int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0) exit(-1);
 
@@ -19,20 +18,29 @@ void CrackClient::cracker() {
   bzero((char *) &server_addr, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = INADDR_ANY;
-  server_addr.sin_port = htons(port);
+  server_addr.sin_port = htons(get_multicast_port());
 
   if(bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+    exit(-1);
+
+  // multicast receiver
+  struct ip_mreq multicastRequest;
+  multicastRequest.imr_multiaddr.s_addr = get_multicast_address();
+  multicastRequest.imr_interface.s_addr = htonl(INADDR_ANY);
+  if (setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (void *) &multicastRequest, sizeof(multicastRequest)) < 0)
     exit(-1);
 
   struct sockaddr_in remote_addr;
   socklen_t len = sizeof(remote_addr);
 
+  // initialize message
   Message msg;
-
   msg.num_passwds = 0;
   msg.port = 0;
 
-  recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
+  // receive the message
+  recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *) &multicastAddr, sizeof(multicastAddr));
+
   msg.num_passwds = ntohl(msg.num_passwds);
 
   // PRINT TESTING
@@ -41,7 +49,7 @@ void CrackClient::cracker() {
   std::cout << msg.hostname << std::endl;
 
 
-  // crack password 
+  // crack password
   for(uint i = 0; i < msg.num_passwds; i++) {
     int plainSize = 5;
     char plain[plainSize];
@@ -61,11 +69,8 @@ void CrackClient::cracker() {
 
   msg.num_passwds = htonl(msg.num_passwds);
 
-
-  // get unicast Port
-  // send cracked passwords back in package
-
   close(sockfd);
+
 
   // send back using TCP protocol
 

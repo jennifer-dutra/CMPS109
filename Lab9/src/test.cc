@@ -1,8 +1,29 @@
 #include "crack.h"
 
-// sends a UDP message
-void sendUDP(Message msg, std::string cruzid, std::string hash, int num_passwds, std::string hostname, int port,
-  socklen_t len, int sockfd, struct sockaddr_in remote_addr) {
+
+// Test server
+void CrackServer::start() {
+  int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0) exit(-1);
+
+  // multicast packet
+  int ttl = 1;
+  int port = get_multicast_port();
+
+  if (setsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_TTL, (void *) &ttl, sizeof(ttl)) < 0)
+    exit(-1);
+  struct sockaddr_in multicastAddr;
+  memset(&multicastAddr, 0, sizeof(multicastAddr));
+  multicastAddr.sin_family = AF_INET;
+  multicastAddr.sin_addr.s_addr = inet_addr("224.0.0.95");
+  multicastAddr.sin_port = htons(port);
+
+  // create temporary message for testing
+  Message msg;
+  std::string cruzid = "jrdutra";
+  std::string hash = "xxo0q4QVK0mOg";
+  std::string hostname = "localhost";
+  int num_passwds = 4;
 
   // set cruzid
   for(uint i = 0; i < cruzid.length(); i++) {
@@ -28,40 +49,12 @@ void sendUDP(Message msg, std::string cruzid, std::string hash, int num_passwds,
   msg.num_passwds = htonl(num_passwds);
   msg.port = htonl(port);
 
-  sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, len);
-}
-
-// Test server
-void CrackServer::start() {
-  int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sockfd < 0) exit(-1);
-
-  int port = get_multicast_port();
-
-  struct hostent *server = gethostbyname("localhost");
-  if (server == NULL) exit(-1);
-
-  struct sockaddr_in remote_addr;
-  bzero((char *) &remote_addr, sizeof(remote_addr));
-  remote_addr.sin_family = AF_INET;
-  bcopy((char *)server->h_addr, (char *)&remote_addr.sin_addr.s_addr, server->h_length);
-  remote_addr.sin_port = htons(port);
-
-  socklen_t len = sizeof(remote_addr);
-
-  Message msg;
-
-  std::string cruzid = "jrdutra";
-  std::string hash = "xxo0q4QVK0mOg";
-  std::string hostname = "localhost";
-  int num_passwds = 4;
-
-  sendUDP(msg, cruzid, hash, num_passwds, hostname, port, len, sockfd, remote_addr);
+  sendto(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *) &multicastAddr, sizeof(multicastAddr));
 
   close(sockfd);
 
 
-  // TCP connection
+  // create TCP connection
 
   Message packet;
 
@@ -80,27 +73,27 @@ void CrackServer::start() {
 
   listen(sockfd,5);
 
-   struct sockaddr_in client_addr;
-   len = sizeof(client_addr);
+  struct sockaddr_in client_addr;
+  socklen_t len = sizeof(client_addr);
 
-   int newsockfd = accept(sockfd, (struct sockaddr *) &client_addr, &len);
-   if (newsockfd < 0) exit(-1);
+  int newsockfd = accept(sockfd, (struct sockaddr *) &client_addr, &len);
+  if (newsockfd < 0) exit(-1);
 
-   int n = recv(newsockfd, (void*)&packet, sizeof(Message), 0);
-   std::cout << "recv status: " << n << '\n';
+  int n = recv(newsockfd, (void*)&packet, sizeof(Message), 0);
+  std::cout << "recv status: " << n << '\n';
 
-   std::cout << packet.passwds[0] << std::endl;
-   std::cout << packet.passwds[1] << std::endl;
-   std::cout << packet.passwds[2] << std::endl;
-   std::cout << packet.passwds[3] << std::endl;
+  // print the messages
+  std::cout << packet.passwds[0] << std::endl;
+  std::cout << packet.passwds[1] << std::endl;
+  std::cout << packet.passwds[2] << std::endl;
+  std::cout << packet.passwds[3] << std::endl;
 
-   close(newsockfd);
-   close(sockfd);
+  close(newsockfd);
+  close(sockfd);
 }
 
 
 int main() {
   CrackServer server;
   server.start();
-
 }

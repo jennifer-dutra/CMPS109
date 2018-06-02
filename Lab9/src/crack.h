@@ -14,9 +14,10 @@
 #include <thread>
 #include <iostream>
 #include <sys/socket.h>
-#include <sys/socket.h>
 #include <netdb.h>
 #include <stdio.h>
+
+#include <arpa/inet.h>
 
 #define HASH_LENGTH       13
 #define MAX_HASHES        64
