@@ -30,16 +30,13 @@ void CrackClient::cracker() {
   if (setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (void *) &multicastRequest, sizeof(multicastRequest)) < 0)
     exit(-1);
 
-  struct sockaddr_in remote_addr;
-  socklen_t len = sizeof(remote_addr);
-
   // initialize message
   Message msg;
   msg.num_passwds = 0;
   msg.port = 0;
 
   // receive the message
-  recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *) &multicastAddr, sizeof(multicastAddr));
+  recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, NULL, 0);
 
   msg.num_passwds = ntohl(msg.num_passwds);
 
@@ -77,7 +74,7 @@ void CrackClient::cracker() {
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) exit(-1);
 
-  struct hostent *server = gethostbyname("localhost");
+  struct hostent *server = gethostbyname(msg.hostname);
   if (server == NULL) exit(-1);
 
   struct sockaddr_in serv_addr;

@@ -41,10 +41,7 @@ void CrackServer::start() {
     }
   }
 
-  // set host name
-  for(uint i = 0; i < hostname.length(); i++) {
-    msg.hostname[i] = hostname.at(i);
-  }
+  strcpy(msg.hostname, "olaf");
 
   msg.num_passwds = htonl(num_passwds);
   msg.port = htonl(port);
