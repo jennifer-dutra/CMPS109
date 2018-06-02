@@ -59,6 +59,43 @@ void CrackServer::start() {
   sendUDP(msg, cruzid, hash, num_passwds, hostname, port, len, sockfd, remote_addr);
 
   close(sockfd);
+
+
+  // TCP connection
+
+  Message packet;
+
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0) exit(-1);
+
+  struct sockaddr_in server_addr;
+  bzero((char *) &server_addr, sizeof(server_addr));
+
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_addr.s_addr = INADDR_ANY;
+  server_addr.sin_port = htons(get_unicast_port());
+
+  if (bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+    exit(-1);
+
+  listen(sockfd,5);
+
+   struct sockaddr_in client_addr;
+   len = sizeof(client_addr);
+
+   int newsockfd = accept(sockfd, (struct sockaddr *) &client_addr, &len);
+   if (newsockfd < 0) exit(-1);
+
+   int n = recv(newsockfd, (void*)&packet, sizeof(Message), 0);
+   std::cout << "recv status: " << n << '\n';
+
+   std::cout << packet.passwds[0] << std::endl;
+   std::cout << packet.passwds[1] << std::endl;
+   std::cout << packet.passwds[2] << std::endl;
+   std::cout << packet.passwds[3] << std::endl;
+
+   close(newsockfd);
+   close(sockfd);
 }
 
 

@@ -3,13 +3,7 @@
 
 // crack passwords
 void crackPass(Message msg) {
-  for(uint i = 0; i < msg.num_passwds; i++) {
-    char plain[5];
-    crack(msg.passwds[i], plain);                       // crack password
-    memset(msg.passwds[i], 0, sizeof(msg.passwds[i]));  // clear original array
-    strcpy(msg.passwds[i], plain);                      // add decrypted pass
-    std::cout << plain  << std::endl;
-  }
+
 }
 
 
@@ -41,12 +35,29 @@ void CrackClient::cracker() {
   recvfrom(sockfd, (void*)&msg, sizeof(Message), 0, (struct sockaddr *)&remote_addr, &len);
   msg.num_passwds = ntohl(msg.num_passwds);
 
-  // PRINT TESTING 
+  // PRINT TESTING
   std::cout << msg.cruzid << std::endl;
   std::cout << msg.num_passwds << std::endl;
   std::cout << msg.hostname << std::endl;
 
-  crackPass(msg);
+
+  // crack password 
+  for(uint i = 0; i < msg.num_passwds; i++) {
+    int plainSize = 5;
+    char plain[plainSize];
+    crack(msg.passwds[i], plain);                       // crack password
+    memset(msg.passwds[i], 0, sizeof(msg.passwds[i]));  // clear original array
+
+    // replace hash with plain text
+    for(int j = 0; j <= plainSize; j++) {
+      if(j == plainSize) {
+        msg.passwds[i][j] = '\0';
+        continue;
+      }
+      msg.passwds[i][j] = plain[j];
+    }
+    std::cout << "decryped: " << msg.passwds[i] << std::endl;
+  }
 
   msg.num_passwds = htonl(msg.num_passwds);
 
@@ -55,6 +66,32 @@ void CrackClient::cracker() {
   // send cracked passwords back in package
 
   close(sockfd);
+
+  // send back using TCP protocol
+
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0) exit(-1);
+
+  struct hostent *server = gethostbyname("localhost");
+  if (server == NULL) exit(-1);
+
+  struct sockaddr_in serv_addr;
+  bzero((char *) &serv_addr, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+
+  serv_addr.sin_port = htons(get_unicast_port());
+
+  if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) exit(-1);
+
+  std::cout << "sending: " << msg.passwds[0] << std::endl;
+
+  int n = send(sockfd, (void*)&msg, sizeof(Message), 0);
+
+  std::cout << "send status: " << n << '\n';
+
+  close(sockfd);
+
 }
 
 
