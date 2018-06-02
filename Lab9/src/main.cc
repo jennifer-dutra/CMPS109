@@ -2,7 +2,25 @@
 #include "crack.h"
 
 // crack passwords
-void crackPass(Message msg) {
+void crackPass(Message& msg) {
+  for(uint i = 0; i < msg.num_passwds; i++) {
+    int plainSize = 5;
+    char plain[plainSize];
+    crack(msg.passwds[i], plain);                       // crack password
+    memset(msg.passwds[i], 0, sizeof(msg.passwds[i]));  // clear original array
+
+    // replace hash with plain text
+    for(int j = 0; j <= plainSize; j++) {
+      if(j == plainSize) {
+        msg.passwds[i][j] = '\0';
+        continue;
+      }
+      msg.passwds[i][j] = plain[j];
+    }
+
+    std::cout << "decryped: " << msg.passwds[i] << std::endl;
+  }
+
 
 }
 
@@ -45,24 +63,8 @@ void CrackClient::cracker() {
   std::cout << msg.num_passwds << std::endl;
   std::cout << msg.hostname << std::endl;
 
-
   // crack password
-  for(uint i = 0; i < msg.num_passwds; i++) {
-    int plainSize = 5;
-    char plain[plainSize];
-    crack(msg.passwds[i], plain);                       // crack password
-    memset(msg.passwds[i], 0, sizeof(msg.passwds[i]));  // clear original array
-
-    // replace hash with plain text
-    for(int j = 0; j <= plainSize; j++) {
-      if(j == plainSize) {
-        msg.passwds[i][j] = '\0';
-        continue;
-      }
-      msg.passwds[i][j] = plain[j];
-    }
-    std::cout << "decryped: " << msg.passwds[i] << std::endl;
-  }
+  crackPass(msg);
 
   msg.num_passwds = htonl(msg.num_passwds);
 
