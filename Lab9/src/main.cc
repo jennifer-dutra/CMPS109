@@ -3,7 +3,18 @@
 
 // crack passwords
 void crackPass(Message& msg) {
+
+  // note to self:
+  // just get rid of this method and have
+  // each thread call crack
+  // then set password at that index
+
+  // std::thread threads[msg.num_passwds];
+  // int currThreads = 0;
+
   for(uint i = 0; i < msg.num_passwds; i++) {
+
+
     int plainSize = 5;
     char plain[plainSize];
     crack(msg.passwds[i], plain);                       // crack password
@@ -20,7 +31,6 @@ void crackPass(Message& msg) {
 
     std::cout << "decryped: " << msg.passwds[i] << std::endl;
   }
-
 
 }
 
@@ -74,19 +84,28 @@ void CrackClient::cracker() {
   // send back using TCP protocol
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0) exit(-1);
+  if (sockfd < 0) {
+    std::cout << "SOCK FD FAIL" << '\n';
+    exit(-1);
+  }
 
   struct hostent *server = gethostbyname(msg.hostname);
-  if (server == NULL) exit(-1);
+  if (server == NULL) {
+    std::cout << "SERVER IS NULL" << '\n';
+    exit(-1);
+  }
 
   struct sockaddr_in serv_addr;
   bzero((char *) &serv_addr, sizeof(serv_addr));
   serv_addr.sin_family = AF_INET;
   bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
 
-  serv_addr.sin_port = htons(get_unicast_port());
+  serv_addr.sin_port = msg.port;
 
-  if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) exit(-1);
+  if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
+    std::cout << "CONNECT FAIL" << '\n';
+    exit(-1);
+  }
 
   std::cout << "sending: " << msg.passwds[0] << std::endl;
 
