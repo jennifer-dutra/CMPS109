@@ -1,36 +1,32 @@
 
+/*
+ * Referenced Distributed lecutre notes:
+ * https://classes.soe.ucsc.edu/cmps109/Spring18/SECURE/15.Distributed5.pdf
+ * https://classes.soe.ucsc.edu/cmps109/Spring18/SECURE/13.Distributed3.pdf
+ *
+ */
+
+
 #include "crack.h"
 
 // crack passwords
-void crackPass(Message& msg) {
+void crackPass(Message& msg, uint i) {
 
-  // note to self:
-  // just get rid of this method and have
-  // each thread call crack
-  // then set password at that index
+  int plainSize = 5;
+  char plain[plainSize];
+  crack(msg.passwds[i], plain);                       // crack password
+  memset(msg.passwds[i], 0, sizeof(msg.passwds[i]));  // clear original array
 
-  // std::thread threads[msg.num_passwds];
-  // int currThreads = 0;
-
-  for(uint i = 0; i < msg.num_passwds; i++) {
-
-
-    int plainSize = 5;
-    char plain[plainSize];
-    crack(msg.passwds[i], plain);                       // crack password
-    memset(msg.passwds[i], 0, sizeof(msg.passwds[i]));  // clear original array
-
-    // replace hash with plain text
-    for(int j = 0; j <= plainSize; j++) {
-      if(j == plainSize) {
-        msg.passwds[i][j] = '\0';
-        continue;
-      }
-      msg.passwds[i][j] = plain[j];
+  // replace hash with plain text
+  for(int j = 0; j <= plainSize; j++) {
+    if(j == plainSize) {
+      msg.passwds[i][j] = '\0';
+      continue;
     }
-
-    std::cout << "decryped: " << msg.passwds[i] << std::endl;
+    msg.passwds[i][j] = plain[j];
   }
+
+  std::cout << "decryped: " << msg.passwds[i] << std::endl;
 
 }
 
@@ -69,12 +65,31 @@ void CrackClient::cracker() {
   msg.num_passwds = ntohl(msg.num_passwds);
 
   // PRINT TESTING
-  std::cout << msg.cruzid << std::endl;
-  std::cout << msg.num_passwds << std::endl;
-  std::cout << msg.hostname << std::endl;
+  // std::cout << msg.cruzid << std::endl;
+  // std::cout << msg.num_passwds << std::endl;
+  // std::cout << msg.hostname << std::endl;
+
+  std::thread threads[msg.num_passwds];                 // create array of threads
+  unsigned int currThreads = 0;                         // current number of threads running
+  unsigned int totalThreads = 0;                        // total threads used
+  unsigned int maxCores = 24;
+
+  // sort each bucket
+  for(unsigned int i = 0; i < msg.num_passwds; i++) {
+    threads[currThreads] = std::thread(crackPass, std::ref(msg), i);
+    currThreads++;
+    totalThreads++;
+
+    if(currThreads == maxCores || totalThreads ==  msg.num_passwds) {
+      for(unsigned int k = 0; k < currThreads; k++) {
+        threads[k].join();
+      }
+      currThreads = 0;
+    }
+  }
 
   // crack password
-  crackPass(msg);
+  // crackPass(msg);
 
   msg.num_passwds = htonl(msg.num_passwds);
 
@@ -85,13 +100,13 @@ void CrackClient::cracker() {
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) {
-    std::cout << "SOCK FD FAIL" << '\n';
+    // std::cout << "SOCK FD FAIL" << '\n';
     exit(-1);
   }
 
   struct hostent *server = gethostbyname(msg.hostname);
   if (server == NULL) {
-    std::cout << "SERVER IS NULL" << '\n';
+    // std::cout << "SERVER IS NULL" << '\n';
     exit(-1);
   }
 
@@ -103,15 +118,15 @@ void CrackClient::cracker() {
   serv_addr.sin_port = msg.port;
 
   if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-    std::cout << "CONNECT FAIL" << '\n';
+    // std::cout << "CONNECT FAIL" << '\n';
     exit(-1);
   }
 
-  std::cout << "sending: " << msg.passwds[0] << std::endl;
+  // std::cout << "sending: " << msg.passwds[0] << std::endl;
 
-  int n = send(sockfd, (void*)&msg, sizeof(Message), 0);
+  send(sockfd, (void*)&msg, sizeof(Message), 0);
 
-  std::cout << "send status: " << n << '\n';
+  // std::cout << "send status: " << n << '\n';
 
   close(sockfd);
 

@@ -68,7 +68,7 @@ unsigned int get_unicast_port();
 /*
  * Crack passwords
  */
-void crackPass(Message& msg);
+void crackPass(Message& msg, uint i);
 
 class CrackServer {
 public:
